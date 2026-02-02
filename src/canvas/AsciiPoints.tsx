@@ -1,12 +1,12 @@
-import { useRef, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Text } from '@react-three/drei'
-
 import portrait from '../assets/portrait.png'
 
-// Liste de caractères spéciaux du clair au foncé
+// Caractères spéciaux du clair au foncé
 const CHARS = [' ', '.', '*', '+', 'x', '%', '#', '@']
 
 export default function AsciiPoints() {
+  // Chaque point contient x, y, z et le caractère
   const [points, setPoints] = useState<{ x: number; y: number; z: number; char: string }[]>()
 
   useEffect(() => {
@@ -23,7 +23,9 @@ export default function AsciiPoints() {
       const imageData = ctx.getImageData(0, 0, img.width, img.height)
 
       const tempPoints: { x: number; y: number; z: number; char: string }[] = []
-      const step = 6
+
+      const step = 2       // espacement plus serré
+      const scale = 50     // pour centrer et zoomer l'image
 
       for (let y = 0; y < img.height; y += step) {
         for (let x = 0; x < img.width; x += step) {
@@ -31,15 +33,18 @@ export default function AsciiPoints() {
           const r = imageData.data[idx]
           const g = imageData.data[idx + 1]
           const b = imageData.data[idx + 2]
+          const a = imageData.data[idx + 3] / 255  // alpha
 
           const brightness = (r + g + b) / 3 / 255
-          if (brightness < 0.9) {
+
+          // uniquement pixels visibles et non blancs
+          if (a > 0.1 && brightness < 0.95) {
             const charIdx = Math.floor(brightness * (CHARS.length - 1))
-            const char = CHARS[CHARS.length - 1 - charIdx] // plus foncé = caractère plus dense
+            const char = CHARS[CHARS.length - 1 - charIdx]
 
             tempPoints.push({
-              x: (x - img.width / 2) / 50,
-              y: -(y - img.height / 2) / 50,
+              x: (x - img.width / 2) / scale,
+              y: -(y - img.height / 2) / scale,
               z: 0,
               char
             })
@@ -57,7 +62,7 @@ export default function AsciiPoints() {
         <Text
           key={i}
           position={[p.x, p.y, p.z]}
-          fontSize={0.05}
+          fontSize={0.05}   // ajustable selon le step
           color="white"
           anchorX="center"
           anchorY="middle"
