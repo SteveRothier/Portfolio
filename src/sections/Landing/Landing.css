@@ -1,0 +1,25 @@
+.landing {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #0b0b0b; /* arrière-plan visible */
+  }
+  
+  .landing canvas {
+    position: absolute;
+    inset: 0;
+  }
+  
+  .landing-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    pointer-events: none;
+    color: #fff;
+  }
+  
