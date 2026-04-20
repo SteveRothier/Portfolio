@@ -1,9 +1,10 @@
-import Landing from './sections/Landing/Landing'
-
 export default function App() {
   return (
-    <main>
-      <Landing />
+    <main className="app">
+      <section className="reset-card">
+        <h1>Portfolio reset</h1>
+        <p>Base propre prete pour reconstruire ton portfolio.</p>
+      </section>
     </main>
   )
 }
