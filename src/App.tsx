@@ -25,27 +25,27 @@ export default function App() {
   const sectionVariants = {
     initial: (dir: number) => ({
       opacity: 0,
-      rotateX: dir > 0 ? 14 : -14,
-      rotateY: dir > 0 ? -7 : 7,
-      scale: dir > 0 ? 0.74 : 0.86,
-      y: dir > 0 ? 135 : -135,
-      z: -420,
+      rotateX: dir > 0 ? 18 : -8,
+      rotateY: dir > 0 ? -10 : 6,
+      scale: dir > 0 ? 0.38 : 1.26,
+      y: dir > 0 ? 180 : -120,
+      z: dir > 0 ? -720 : 340,
     }),
     animate: {
       opacity: 1,
       rotateX: 0,
       rotateY: 0,
-      scale: 1,
+      scale: [1.14, 1],
       y: 0,
       z: 0,
     },
     exit: (dir: number) => ({
       opacity: 0,
-      rotateX: dir > 0 ? -13 : 13,
-      rotateY: dir > 0 ? 6 : -6,
-      scale: dir > 0 ? 1.48 : 1.25,
-      y: dir > 0 ? -135 : 135,
-      z: 460,
+      rotateX: dir > 0 ? -13 : 10,
+      rotateY: dir > 0 ? 6 : -4,
+      scale: dir > 0 ? 1.48 : 0.46,
+      y: dir > 0 ? -135 : 160,
+      z: dir > 0 ? 460 : -540,
     }),
   }
 
