@@ -712,6 +712,13 @@ body::-webkit-scrollbar {
   gap: 1.5rem;
 }
 
+#projects {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .projects-grid {
   margin-top: 1rem;
   display: grid;
