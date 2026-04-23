@@ -173,6 +173,12 @@ export function DesktopWindow({
     onFocus()
   }
 
+  const handleTitlebarDoubleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement
+    if (target.closest('.desktop-window__controls-zone')) return
+    onToggleMaximize()
+  }
+
   if (!windowState.isOpen) return null
 
   return (
@@ -187,7 +193,11 @@ export function DesktopWindow({
       onMouseDown={handleWindowMouseDown}
       aria-label={windowState.title}
     >
-      <header className="desktop-window__titlebar" onPointerDown={handlePointerDown}>
+      <header
+        className="desktop-window__titlebar"
+        onPointerDown={handlePointerDown}
+        onDoubleClick={handleTitlebarDoubleClick}
+      >
         <div className="desktop-window__controls-zone">
           <div className="desktop-window__controls" aria-hidden>
             <button
