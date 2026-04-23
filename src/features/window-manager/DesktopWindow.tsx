@@ -140,6 +140,8 @@ export function DesktopWindow({
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (resizeRef.current.resizing) return
     if (windowState.isMaximized) return
+    const target = event.target as HTMLElement
+    if (target.closest('.desktop-window__controls')) return
     dragRef.current.pointerId = event.pointerId
     dragRef.current.startX = event.clientX
     dragRef.current.startY = event.clientY
