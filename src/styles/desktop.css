@@ -125,10 +125,9 @@
 
 .desktop-window__titlebar {
   height: 44px;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  position: relative;
+  display: flex;
   align-items: center;
-  gap: 0.65rem;
   padding: 0 0.7rem;
   border-bottom: 1px solid var(--line-soft);
   background: rgba(10, 20, 38, 0.75);
@@ -140,43 +139,76 @@
 }
 
 .desktop-window__titlebar p {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   margin: 0;
   font-size: 0.85rem;
   color: var(--text-soft);
+  line-height: 1;
+  pointer-events: none;
 }
 
 .desktop-window__controls {
+  margin-left: auto;
   display: inline-flex;
   align-items: center;
   gap: 0.38rem;
 }
 
 .control {
-  width: 10px;
-  height: 10px;
+  width: 15px;
+  height: 15px;
   border-radius: 999px;
+  border: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 0;
 }
 
 .control--close {
   background: #ff6d6d;
 }
 
+.control--close svg {
+  color: #7d1d27;
+}
+
 .control--min {
   background: #ffc85e;
+}
+
+.control--min svg {
+  color: #7a4f03;
 }
 
 .control--max {
   background: #5ddb8c;
 }
 
-.desktop-window__close {
-  border: 1px solid var(--line-soft);
-  border-radius: 999px;
-  color: var(--text-main);
-  background: rgba(9, 18, 34, 0.9);
-  font-size: 0.72rem;
-  padding: 0.24rem 0.55rem;
-  cursor: pointer;
+.control--max svg {
+  color: #0f5a32;
+}
+
+.control svg {
+  display: block;
+  position: relative;
+  top: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.desktop-window__titlebar:hover .control svg,
+.control:focus-visible svg {
+  opacity: 1;
+}
+
+.control:focus-visible {
+  outline: 1px solid rgba(225, 236, 255, 0.7);
+  outline-offset: 1px;
 }
 
 .desktop-window__content {

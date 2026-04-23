@@ -11,6 +11,8 @@ function toWindowState(config: WindowConfig, zIndex: number): DesktopWindowState
     ...config,
     zIndex,
     isOpen: false,
+    isMinimized: false,
+    isMaximized: false,
   }
 }
 
@@ -40,7 +42,7 @@ export function useWindowManager() {
   const openWindow = (id: WindowId) => {
     setWindows((prev) => ({
       ...prev,
-      [id]: { ...prev[id], isOpen: true },
+      [id]: { ...prev[id], isOpen: true, isMinimized: false },
     }))
     bringToFront(id)
   }
@@ -48,8 +50,55 @@ export function useWindowManager() {
   const closeWindow = (id: WindowId) => {
     setWindows((prev) => ({
       ...prev,
-      [id]: { ...prev[id], isOpen: false },
+      [id]: { ...prev[id], isOpen: false, isMinimized: false, isMaximized: false },
     }))
+  }
+
+  const minimizeWindow = (id: WindowId) => {
+    setWindows((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        isOpen: false,
+        isMinimized: true,
+      },
+    }))
+  }
+
+  const toggleMaximizeWindow = (id: WindowId) => {
+    setWindows((prev) => {
+      const current = prev[id]
+      if (current.isMaximized && current.restoreBounds) {
+        return {
+          ...prev,
+          [id]: {
+            ...current,
+            ...current.restoreBounds,
+            isMaximized: false,
+            restoreBounds: undefined,
+          },
+        }
+      }
+
+      return {
+        ...prev,
+        [id]: {
+          ...current,
+          x: 12,
+          y: 44,
+          width: Math.max(window.innerWidth - 24, 320),
+          height: Math.max(window.innerHeight - 58, 220),
+          isMaximized: true,
+          restoreBounds: {
+            x: current.x,
+            y: current.y,
+            width: current.width,
+            height: current.height,
+          },
+        },
+      }
+    })
+    bringToFront(id)
   }
 
   const moveWindow = (id: WindowId, x: number, y: number) => {
@@ -57,6 +106,8 @@ export function useWindowManager() {
       ...prev,
       [id]: {
         ...prev[id],
+        isMaximized: false,
+        restoreBounds: undefined,
         x,
         y,
       },
@@ -68,6 +119,8 @@ export function useWindowManager() {
       ...prev,
       [id]: {
         ...prev[id],
+        isMaximized: false,
+        restoreBounds: undefined,
         x,
         y,
         width,
@@ -81,6 +134,8 @@ export function useWindowManager() {
     orderedWindows,
     openWindow,
     closeWindow,
+    minimizeWindow,
+    toggleMaximizeWindow,
     bringToFront,
     moveWindow,
     resizeWindow,

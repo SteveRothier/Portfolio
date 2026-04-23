@@ -6,6 +6,8 @@ type DesktopWindowProps = {
   windowState: DesktopWindowState
   onFocus: () => void
   onClose: () => void
+  onMinimize: () => void
+  onToggleMaximize: () => void
   onMove: (x: number, y: number) => void
   onResize: (x: number, y: number, width: number, height: number) => void
   children: ReactNode
@@ -25,6 +27,8 @@ export function DesktopWindow({
   windowState,
   onFocus,
   onClose,
+  onMinimize,
+  onToggleMaximize,
   onMove,
   onResize,
   children,
@@ -135,6 +139,7 @@ export function DesktopWindow({
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (resizeRef.current.resizing) return
+    if (windowState.isMaximized) return
     dragRef.current.pointerId = event.pointerId
     dragRef.current.startX = event.clientX
     dragRef.current.startY = event.clientY
@@ -147,6 +152,7 @@ export function DesktopWindow({
   const handleResizePointerDown =
     (direction: ResizeDirection) => (event: ReactPointerEvent<HTMLDivElement>) => {
       event.stopPropagation()
+      if (windowState.isMaximized) return
       resizeRef.current.pointerId = event.pointerId
       resizeRef.current.startX = event.clientX
       resizeRef.current.startY = event.clientY
@@ -175,19 +181,30 @@ export function DesktopWindow({
     >
       <header className="desktop-window__titlebar" onPointerDown={handlePointerDown}>
         <div className="desktop-window__controls" aria-hidden>
-          <span className="control control--close" />
-          <span className="control control--min" />
-          <span className="control control--max" />
+          <button
+            type="button"
+            className="control control--close"
+            aria-label="Fermer la fenetre"
+            onClick={onClose}
+            onPointerDown={(event) => event.stopPropagation()}
+          />
+          <button
+            type="button"
+            className="control control--min"
+            aria-label="Minimiser la fenetre"
+            onClick={onMinimize}
+            onPointerDown={(event) => event.stopPropagation()}
+          />
+          <button
+            type="button"
+            className="control control--max"
+            aria-label="Maximiser ou restaurer la fenetre"
+            onClick={onToggleMaximize}
+            onPointerDown={(event) => event.stopPropagation()}
+          />
         </div>
         <p>{windowState.title}</p>
-        <button
-          type="button"
-          className="desktop-window__close"
-          onClick={onClose}
-          onPointerDown={(event) => event.stopPropagation()}
-        >
-          Fermer
-        </button>
+        <span aria-hidden />
       </header>
       <div className="desktop-window__content">{children}</div>
       <div className="resize-handle resize-handle--top" onPointerDown={handleResizePointerDown('top')} />
