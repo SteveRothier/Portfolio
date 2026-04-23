@@ -716,33 +716,209 @@ body::-webkit-scrollbar {
   margin-top: 1rem;
   display: grid;
   gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 340px));
+  justify-content: center;
 }
 
 .project-card {
   border: 1px solid #334155;
   border-radius: 12px;
-  padding: 1rem;
+  background: rgba(15, 23, 42, 0.5);
+  overflow: hidden;
+  box-shadow: 0 12px 24px rgba(2, 6, 23, 0.35);
+  width: 100%;
+  max-width: 340px;
+}
+
+.project-card-tilt {
+  width: 100%;
+  max-width: 340px;
+}
+
+.three-d-card-shell {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
   background: rgba(15, 23, 42, 0.5);
 }
 
-.project-links {
-  margin-top: 0.8rem;
-  display: flex;
-  gap: 0.8rem;
+.three-d-card-border {
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  pointer-events: none;
 }
 
-.project-links a {
-  color: #f59e0b;
+.three-d-card-content {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.three-d-card-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+}
+
+.project-media {
+  display: block;
+  position: relative;
+  z-index: 3;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  background: transparent;
+  text-align: inherit;
   text-decoration: none;
 }
 
-.project-links a:hover {
-  color: #f97316;
+.project-media * {
+  cursor: pointer !important;
+}
+
+.project-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.project-media-hover-label {
+  position: absolute;
+  top: 0.45rem;
+  left: 50%;
+  transform: translate(-50%, -6px);
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(2, 6, 23, 0.78);
+  color: #e2e8f0;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.project-media:hover .project-media-hover-label {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.project-media-fallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #e2e8f0;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+}
+
+.project-content {
+  padding: 0.9rem 1rem 0;
+}
+
+.project-content h3 {
+  margin: 0 0 0.45rem;
+}
+
+.project-content p {
+  margin: 0;
+}
+
+.project-techs {
+  margin-top: 0.75rem;
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  width: fit-content;
+  padding: 0.28rem 0.34rem;
+  border-radius: 999px;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  background: rgba(2, 6, 23, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.8);
+}
+
+.project-meta-row {
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.project-meta-row .project-techs {
+  margin-top: 0;
+}
+
+.project-tech-text {
+  font-size: 0.72rem;
+  color: #bfdbfe;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  background: rgba(15, 23, 42, 0.78);
+  border-radius: 999px;
+  padding: 0.2rem 0.5rem;
+}
+
+.project-tech-icon {
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(59, 130, 246, 0.38);
+  background: radial-gradient(circle at 35% 25%, #1e3a8a, #0f172a 66%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.33rem;
+}
+
+.project-tech-icon img {
+  display: block;
+  margin: auto;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.project-github-link {
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(59, 130, 246, 0.38);
+  background: radial-gradient(circle at 35% 25%, #1e3a8a, #0f172a 66%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.project-github-link img {
+  width: 1rem;
+  height: 1rem;
+}
+
+.project-github-link:hover {
+  border-color: rgba(96, 165, 250, 0.65);
 }
 
 @media (min-width: 760px) {
   .projects-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(270px, 340px));
+    justify-content: center;
   }
 }
 
