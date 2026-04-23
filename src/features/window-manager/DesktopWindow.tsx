@@ -192,13 +192,6 @@ export function DesktopWindow({
           <div className="desktop-window__controls" aria-hidden>
             <button
               type="button"
-              className="control control--close"
-              aria-label="Fermer la fenetre"
-              onClick={onClose}
-              onPointerDown={(event) => event.stopPropagation()}
-            />
-            <button
-              type="button"
               className="control control--min"
               aria-label="Minimiser la fenetre"
               onClick={onMinimize}
@@ -209,6 +202,13 @@ export function DesktopWindow({
               className="control control--max"
               aria-label="Maximiser ou restaurer la fenetre"
               onClick={onToggleMaximize}
+              onPointerDown={(event) => event.stopPropagation()}
+            />
+            <button
+              type="button"
+              className="control control--close"
+              aria-label="Fermer la fenetre"
+              onClick={onClose}
               onPointerDown={(event) => event.stopPropagation()}
             />
           </div>
