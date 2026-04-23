@@ -169,7 +169,7 @@ export function DesktopWindow({
 
   return (
     <article
-      className="desktop-window"
+      className={`desktop-window ${windowState.isMaximized ? 'desktop-window--maximized' : ''}`}
       style={{
         width: `${windowState.width}px`,
         height: `${windowState.height}px`,

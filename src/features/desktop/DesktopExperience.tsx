@@ -7,7 +7,7 @@ import { useWindowManager } from '../window-manager/useWindowManager'
 import type { WindowId } from '../window-manager/types'
 
 const desktopIcons: { id: WindowId; label: string; badge: string }[] = [
-  { id: 'projects', label: 'Projects', badge: '01' },
+  { id: 'projects', label: 'Projets', badge: '01' },
   { id: 'contact', label: 'Contact', badge: '02' },
 ]
 

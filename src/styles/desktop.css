@@ -118,6 +118,12 @@
   backdrop-filter: blur(16px);
 }
 
+.desktop-window--maximized {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 .desktop-window__titlebar,
 .resize-handle {
   user-select: none;

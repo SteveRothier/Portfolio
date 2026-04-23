@@ -1,10 +1,15 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { DesktopWindowState, WindowConfig, WindowId } from './types'
 
 const INITIAL_WINDOWS: WindowConfig[] = [
-  { id: 'projects', title: 'Projects', width: 680, height: 420, x: 120, y: 110 },
+  { id: 'projects', title: 'Projets', width: 680, height: 420, x: 120, y: 110 },
   { id: 'contact', title: 'Contact', width: 420, height: 360, x: 220, y: 170 },
 ]
+
+const WINDOW_TITLES: Record<WindowId, string> = {
+  projects: 'Projets',
+  contact: 'Contact',
+}
 
 function toWindowState(config: WindowConfig, zIndex: number): DesktopWindowState {
   return {
@@ -22,6 +27,23 @@ export function useWindowManager() {
     projects: toWindowState(INITIAL_WINDOWS[0], 1),
     contact: toWindowState(INITIAL_WINDOWS[1], 2),
   }))
+
+  useEffect(() => {
+    setWindows((prev) => {
+      let hasChanges = false
+      const next = { ...prev }
+
+      ;(Object.keys(prev) as WindowId[]).forEach((id) => {
+        const expectedTitle = WINDOW_TITLES[id]
+        if (prev[id].title !== expectedTitle) {
+          hasChanges = true
+          next[id] = { ...prev[id], title: expectedTitle }
+        }
+      })
+
+      return hasChanges ? next : prev
+    })
+  }, [])
 
   const orderedWindows = useMemo(
     () => Object.values(windows).sort((a, b) => a.zIndex - b.zIndex),
@@ -84,10 +106,10 @@ export function useWindowManager() {
         ...prev,
         [id]: {
           ...current,
-          x: 12,
-          y: 44,
-          width: Math.max(window.innerWidth - 24, 320),
-          height: Math.max(window.innerHeight - 58, 220),
+          x: 0,
+          y: 0,
+          width: Math.max(window.innerWidth, 320),
+          height: Math.max(window.innerHeight, 220),
           isMaximized: true,
           restoreBounds: {
             x: current.x,
