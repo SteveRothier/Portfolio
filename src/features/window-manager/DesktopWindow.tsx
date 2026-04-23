@@ -165,6 +165,12 @@ export function DesktopWindow({
       onFocus()
     }
 
+  const handleWindowMouseDown = (event: React.MouseEvent<HTMLElement>) => {
+    const target = event.target as HTMLElement
+    if (target.closest('.control')) return
+    onFocus()
+  }
+
   if (!windowState.isOpen) return null
 
   return (
@@ -176,7 +182,7 @@ export function DesktopWindow({
         transform: `translate3d(${windowState.x}px, ${windowState.y}px, 0)`,
         zIndex: windowState.zIndex,
       }}
-      onMouseDown={onFocus}
+      onMouseDown={handleWindowMouseDown}
       aria-label={windowState.title}
     >
       <header className="desktop-window__titlebar" onPointerDown={handlePointerDown}>
