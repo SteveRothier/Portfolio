@@ -7,16 +7,33 @@ type DesktopWindowProps = {
   onFocus: () => void
   onClose: () => void
   onMove: (x: number, y: number) => void
+  onResize: (x: number, y: number, width: number, height: number) => void
   children: ReactNode
 }
+
+type ResizeDirection =
+  | 'top'
+  | 'right'
+  | 'bottom'
+  | 'left'
+  | 'top-left'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-right'
 
 export function DesktopWindow({
   windowState,
   onFocus,
   onClose,
   onMove,
+  onResize,
   children,
 }: DesktopWindowProps) {
+  const minWidth = 320
+  const minHeight = 220
+  const minTop = 42
+  const viewportPadding = 10
+
   const dragRef = useRef({
     pointerId: -1,
     startX: 0,
@@ -25,14 +42,75 @@ export function DesktopWindow({
     originY: 0,
     dragging: false,
   })
+  const resizeRef = useRef({
+    pointerId: -1,
+    startX: 0,
+    startY: 0,
+    originX: 0,
+    originY: 0,
+    originWidth: 0,
+    originHeight: 0,
+    direction: 'right' as ResizeDirection,
+    resizing: false,
+  })
 
   useEffect(() => {
     const handlePointerUp = () => {
       dragRef.current.dragging = false
       dragRef.current.pointerId = -1
+      resizeRef.current.resizing = false
+      resizeRef.current.pointerId = -1
     }
 
     const handlePointerMove = (event: PointerEvent) => {
+      if (resizeRef.current.resizing) {
+        if (resizeRef.current.pointerId !== event.pointerId) return
+
+        const deltaX = event.clientX - resizeRef.current.startX
+        const deltaY = event.clientY - resizeRef.current.startY
+        const direction = resizeRef.current.direction
+
+        let nextX = resizeRef.current.originX
+        let nextY = resizeRef.current.originY
+        let nextWidth = resizeRef.current.originWidth
+        let nextHeight = resizeRef.current.originHeight
+
+        if (direction.includes('right')) {
+          const maxWidth = window.innerWidth - resizeRef.current.originX - viewportPadding
+          nextWidth = Math.min(
+            Math.max(resizeRef.current.originWidth + deltaX, minWidth),
+            Math.max(maxWidth, minWidth),
+          )
+        }
+
+        if (direction.includes('left')) {
+          const rawWidth = resizeRef.current.originWidth - deltaX
+          const maxWidth = resizeRef.current.originX + resizeRef.current.originWidth - viewportPadding
+          nextWidth = Math.min(Math.max(rawWidth, minWidth), maxWidth)
+          nextX = resizeRef.current.originX + (resizeRef.current.originWidth - nextWidth)
+          nextX = Math.max(nextX, viewportPadding)
+        }
+
+        if (direction.includes('bottom')) {
+          const maxHeight = window.innerHeight - resizeRef.current.originY - viewportPadding
+          nextHeight = Math.min(
+            Math.max(resizeRef.current.originHeight + deltaY, minHeight),
+            Math.max(maxHeight, minHeight),
+          )
+        }
+
+        if (direction.includes('top')) {
+          const rawHeight = resizeRef.current.originHeight - deltaY
+          const maxHeight = resizeRef.current.originY + resizeRef.current.originHeight - minTop
+          nextHeight = Math.min(Math.max(rawHeight, minHeight), maxHeight)
+          nextY = resizeRef.current.originY + (resizeRef.current.originHeight - nextHeight)
+          nextY = Math.max(nextY, minTop)
+        }
+
+        onResize(nextX, nextY, nextWidth, nextHeight)
+        return
+      }
+
       if (!dragRef.current.dragging) return
       if (dragRef.current.pointerId !== event.pointerId) return
 
@@ -41,8 +119,8 @@ export function DesktopWindow({
       const maxX = Math.max(window.innerWidth - windowState.width - 12, 0)
       const maxY = Math.max(window.innerHeight - 120, 0)
 
-      const x = Math.min(Math.max(dragRef.current.originX + deltaX, 0), maxX)
-      const y = Math.min(Math.max(dragRef.current.originY + deltaY, 42), maxY)
+      const x = Math.min(Math.max(dragRef.current.originX + deltaX, viewportPadding), maxX)
+      const y = Math.min(Math.max(dragRef.current.originY + deltaY, minTop), maxY)
 
       onMove(x, y)
     }
@@ -53,9 +131,10 @@ export function DesktopWindow({
       window.removeEventListener('pointerup', handlePointerUp)
       window.removeEventListener('pointermove', handlePointerMove)
     }
-  }, [onMove, windowState.height, windowState.width])
+  }, [minHeight, minTop, minWidth, onMove, onResize, viewportPadding, windowState.height, windowState.width])
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (resizeRef.current.resizing) return
     dragRef.current.pointerId = event.pointerId
     dragRef.current.startX = event.clientX
     dragRef.current.startY = event.clientY
@@ -64,6 +143,21 @@ export function DesktopWindow({
     dragRef.current.dragging = true
     onFocus()
   }
+
+  const handleResizePointerDown =
+    (direction: ResizeDirection) => (event: ReactPointerEvent<HTMLDivElement>) => {
+      event.stopPropagation()
+      resizeRef.current.pointerId = event.pointerId
+      resizeRef.current.startX = event.clientX
+      resizeRef.current.startY = event.clientY
+      resizeRef.current.originX = windowState.x
+      resizeRef.current.originY = windowState.y
+      resizeRef.current.originWidth = windowState.width
+      resizeRef.current.originHeight = windowState.height
+      resizeRef.current.direction = direction
+      resizeRef.current.resizing = true
+      onFocus()
+    }
 
   if (!windowState.isOpen) return null
 
@@ -86,11 +180,42 @@ export function DesktopWindow({
           <span className="control control--max" />
         </div>
         <p>{windowState.title}</p>
-        <button type="button" className="desktop-window__close" onClick={onClose}>
+        <button
+          type="button"
+          className="desktop-window__close"
+          onClick={onClose}
+          onPointerDown={(event) => event.stopPropagation()}
+        >
           Fermer
         </button>
       </header>
       <div className="desktop-window__content">{children}</div>
+      <div className="resize-handle resize-handle--top" onPointerDown={handleResizePointerDown('top')} />
+      <div
+        className="resize-handle resize-handle--right"
+        onPointerDown={handleResizePointerDown('right')}
+      />
+      <div
+        className="resize-handle resize-handle--bottom"
+        onPointerDown={handleResizePointerDown('bottom')}
+      />
+      <div className="resize-handle resize-handle--left" onPointerDown={handleResizePointerDown('left')} />
+      <div
+        className="resize-handle resize-handle--top-left"
+        onPointerDown={handleResizePointerDown('top-left')}
+      />
+      <div
+        className="resize-handle resize-handle--top-right"
+        onPointerDown={handleResizePointerDown('top-right')}
+      />
+      <div
+        className="resize-handle resize-handle--bottom-left"
+        onPointerDown={handleResizePointerDown('bottom-left')}
+      />
+      <div
+        className="resize-handle resize-handle--bottom-right"
+        onPointerDown={handleResizePointerDown('bottom-right')}
+      />
     </article>
   )
 }

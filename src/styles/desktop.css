@@ -118,6 +118,11 @@
   backdrop-filter: blur(16px);
 }
 
+.desktop-window__titlebar,
+.resize-handle {
+  user-select: none;
+}
+
 .desktop-window__titlebar {
   height: 44px;
   display: grid;
@@ -178,6 +183,75 @@
   height: calc(100% - 44px);
   overflow: auto;
   background: var(--bg-window-soft);
+}
+
+.resize-handle {
+  position: absolute;
+  z-index: 5;
+}
+
+.resize-handle--top {
+  top: 0;
+  left: 10px;
+  right: 10px;
+  height: 6px;
+  cursor: ns-resize;
+}
+
+.resize-handle--right {
+  top: 10px;
+  right: 0;
+  bottom: 10px;
+  width: 6px;
+  cursor: ew-resize;
+}
+
+.resize-handle--bottom {
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  height: 6px;
+  cursor: ns-resize;
+}
+
+.resize-handle--left {
+  top: 10px;
+  left: 0;
+  bottom: 10px;
+  width: 6px;
+  cursor: ew-resize;
+}
+
+.resize-handle--top-left {
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  cursor: nwse-resize;
+}
+
+.resize-handle--top-right {
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  cursor: nesw-resize;
+}
+
+.resize-handle--bottom-left {
+  bottom: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  cursor: nesw-resize;
+}
+
+.resize-handle--bottom-right {
+  right: 0;
+  bottom: 0;
+  width: 10px;
+  height: 10px;
+  cursor: nwse-resize;
 }
 
 .projects-window {

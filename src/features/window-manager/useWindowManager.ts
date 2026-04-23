@@ -63,6 +63,19 @@ export function useWindowManager() {
     }))
   }
 
+  const resizeWindow = (id: WindowId, x: number, y: number, width: number, height: number) => {
+    setWindows((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        x,
+        y,
+        width,
+        height,
+      },
+    }))
+  }
+
   return {
     windows,
     orderedWindows,
@@ -70,5 +83,6 @@ export function useWindowManager() {
     closeWindow,
     bringToFront,
     moveWindow,
+    resizeWindow,
   }
 }

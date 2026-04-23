@@ -13,7 +13,8 @@ const desktopIcons: { id: WindowId; label: string; badge: string }[] = [
 
 export function DesktopExperience() {
   const desktopRef = useRef<HTMLDivElement | null>(null)
-  const { orderedWindows, openWindow, closeWindow, bringToFront, moveWindow } = useWindowManager()
+  const { orderedWindows, openWindow, closeWindow, bringToFront, moveWindow, resizeWindow } =
+    useWindowManager()
   const [now, setNow] = useState(() => new Date())
 
   useEffect(() => {
@@ -111,6 +112,9 @@ export function DesktopExperience() {
             onFocus={() => bringToFront(windowState.id)}
             onClose={() => closeWindow(windowState.id)}
             onMove={(x, y) => moveWindow(windowState.id, x, y)}
+            onResize={(x: number, y: number, width: number, height: number) =>
+              resizeWindow(windowState.id, x, y, width, height)
+            }
           >
             {windowState.id === 'projects' ? <ProjectsWindow /> : <ContactWindow />}
           </DesktopWindow>
