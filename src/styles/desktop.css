@@ -157,10 +157,21 @@
 }
 
 .desktop-window__controls {
-  margin-left: auto;
   display: inline-flex;
+  height: 100%;
   align-items: center;
   gap: 0.38rem;
+}
+
+.desktop-window__controls-zone {
+  margin-left: auto;
+  min-width: 84px;
+  height: 100%;
+  padding: 0 0 0 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  cursor: default;
 }
 
 .control {

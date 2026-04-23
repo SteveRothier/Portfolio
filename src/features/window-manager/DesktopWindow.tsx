@@ -141,7 +141,7 @@ export function DesktopWindow({
     if (resizeRef.current.resizing) return
     if (windowState.isMaximized) return
     const target = event.target as HTMLElement
-    if (target.closest('.desktop-window__controls')) return
+    if (target.closest('.desktop-window__controls-zone')) return
     dragRef.current.pointerId = event.pointerId
     dragRef.current.startX = event.clientX
     dragRef.current.startY = event.clientY
@@ -188,28 +188,30 @@ export function DesktopWindow({
       aria-label={windowState.title}
     >
       <header className="desktop-window__titlebar" onPointerDown={handlePointerDown}>
-        <div className="desktop-window__controls" aria-hidden>
-          <button
-            type="button"
-            className="control control--close"
-            aria-label="Fermer la fenetre"
-            onClick={onClose}
-            onPointerDown={(event) => event.stopPropagation()}
-          />
-          <button
-            type="button"
-            className="control control--min"
-            aria-label="Minimiser la fenetre"
-            onClick={onMinimize}
-            onPointerDown={(event) => event.stopPropagation()}
-          />
-          <button
-            type="button"
-            className="control control--max"
-            aria-label="Maximiser ou restaurer la fenetre"
-            onClick={onToggleMaximize}
-            onPointerDown={(event) => event.stopPropagation()}
-          />
+        <div className="desktop-window__controls-zone">
+          <div className="desktop-window__controls" aria-hidden>
+            <button
+              type="button"
+              className="control control--close"
+              aria-label="Fermer la fenetre"
+              onClick={onClose}
+              onPointerDown={(event) => event.stopPropagation()}
+            />
+            <button
+              type="button"
+              className="control control--min"
+              aria-label="Minimiser la fenetre"
+              onClick={onMinimize}
+              onPointerDown={(event) => event.stopPropagation()}
+            />
+            <button
+              type="button"
+              className="control control--max"
+              aria-label="Maximiser ou restaurer la fenetre"
+              onClick={onToggleMaximize}
+              onPointerDown={(event) => event.stopPropagation()}
+            />
+          </div>
         </div>
         <p>{windowState.title}</p>
         <span aria-hidden />
