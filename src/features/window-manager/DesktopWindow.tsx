@@ -9,7 +9,10 @@ type DesktopWindowProps = {
   onMinimize: () => void
   onToggleMaximize: () => void
   onMove: (x: number, y: number) => void
+  onDragMove: (x: number, y: number, width: number, height: number) => void
   onResize: (x: number, y: number, width: number, height: number) => void
+  onRestoreFromSnap: (x: number, y: number, width: number, height: number) => void
+  onDragEnd: () => void
   children: ReactNode
 }
 
@@ -30,12 +33,15 @@ export function DesktopWindow({
   onMinimize,
   onToggleMaximize,
   onMove,
+  onDragMove,
   onResize,
+  onRestoreFromSnap,
+  onDragEnd,
   children,
 }: DesktopWindowProps) {
   const minWidth = 320
   const minHeight = 220
-  const minTop = 42
+  const minTop = 0
   const viewportPadding = 10
 
   const dragRef = useRef({
@@ -60,10 +66,12 @@ export function DesktopWindow({
 
   useEffect(() => {
     const handlePointerUp = () => {
+      const wasDragging = dragRef.current.dragging
       dragRef.current.dragging = false
       dragRef.current.pointerId = -1
       resizeRef.current.resizing = false
       resizeRef.current.pointerId = -1
+      if (wasDragging) onDragEnd()
     }
 
     const handlePointerMove = (event: PointerEvent) => {
@@ -127,6 +135,7 @@ export function DesktopWindow({
       const y = Math.min(Math.max(dragRef.current.originY + deltaY, minTop), maxY)
 
       onMove(x, y)
+      onDragMove(x, y, windowState.width, windowState.height)
     }
 
     window.addEventListener('pointerup', handlePointerUp)
@@ -135,13 +144,54 @@ export function DesktopWindow({
       window.removeEventListener('pointerup', handlePointerUp)
       window.removeEventListener('pointermove', handlePointerMove)
     }
-  }, [minHeight, minTop, minWidth, onMove, onResize, viewportPadding, windowState.height, windowState.width])
+  }, [
+    minHeight,
+    minTop,
+    minWidth,
+    onDragMove,
+    onMove,
+    onResize,
+    viewportPadding,
+    windowState.height,
+    windowState.width,
+  ])
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (resizeRef.current.resizing) return
-    if (windowState.isMaximized) return
     const target = event.target as HTMLElement
     if (target.closest('.desktop-window__controls-zone')) return
+
+    const hasSnapBounds = Boolean(windowState.restoreBounds)
+    if (windowState.isMaximized || hasSnapBounds) {
+      const restore = windowState.restoreBounds ?? {
+        x: windowState.x,
+        y: windowState.y,
+        width: Math.max(Math.floor(window.innerWidth * 0.78), minWidth),
+        height: Math.max(Math.floor(window.innerHeight * 0.72), minHeight),
+      }
+
+      const pointerRatio = (event.clientX - windowState.x) / Math.max(windowState.width, 1)
+      const clampedRatio = Math.min(Math.max(pointerRatio, 0.16), 0.84)
+      const maxX = Math.max(window.innerWidth - restore.width - viewportPadding, 0)
+      const maxY = Math.max(window.innerHeight - 120, 0)
+      const restoredX = Math.min(
+        Math.max(event.clientX - restore.width * clampedRatio, viewportPadding),
+        maxX,
+      )
+      const restoredY = Math.min(Math.max(event.clientY - 18, minTop), maxY)
+
+      onRestoreFromSnap(restoredX, restoredY, restore.width, restore.height)
+
+      dragRef.current.pointerId = event.pointerId
+      dragRef.current.startX = event.clientX
+      dragRef.current.startY = event.clientY
+      dragRef.current.originX = restoredX
+      dragRef.current.originY = restoredY
+      dragRef.current.dragging = true
+      onFocus()
+      return
+    }
+
     dragRef.current.pointerId = event.pointerId
     dragRef.current.startX = event.clientX
     dragRef.current.startY = event.clientY
@@ -183,7 +233,7 @@ export function DesktopWindow({
 
   return (
     <article
-      className={`desktop-window ${windowState.isMaximized ? 'desktop-window--maximized' : ''}`}
+      className={`desktop-window ${windowState.isMaximized ? 'desktop-window--maximized' : ''} ${windowState.snapMode === 'left' || windowState.snapMode === 'right' ? 'desktop-window--edge-snapped' : ''}`}
       style={{
         width: `${windowState.width}px`,
         height: `${windowState.height}px`,

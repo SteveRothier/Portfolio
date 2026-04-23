@@ -11,6 +11,8 @@ const desktopIcons: { id: WindowId; label: string; badge: string }[] = [
   { id: 'contact', label: 'Contact', badge: '02' },
 ]
 
+type SnapTarget = 'top' | 'left' | 'right' | null
+
 export function DesktopExperience() {
   const desktopRef = useRef<HTMLDivElement | null>(null)
   const {
@@ -22,8 +24,19 @@ export function DesktopExperience() {
     bringToFront,
     moveWindow,
     resizeWindow,
+    restoreWindowFromSnap,
+    snapWindowToEdge,
   } = useWindowManager()
   const [now, setNow] = useState(() => new Date())
+  const [snapPreview, setSnapPreview] = useState<SnapTarget>(null)
+  const resolveSnapTarget = (x: number, y: number, width: number): SnapTarget => {
+    const edgeThreshold = 28
+    if (y <= edgeThreshold) return 'top'
+    if (x <= edgeThreshold) return 'left'
+    if (x + width >= window.innerWidth - edgeThreshold) return 'right'
+    return null
+  }
+
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -113,6 +126,7 @@ export function DesktopExperience() {
       </div>
 
       <div className="desktop-windows">
+        {snapPreview ? <div className={`snap-preview snap-preview--${snapPreview}`} aria-hidden /> : null}
         {orderedWindows.map((windowState) => (
           <DesktopWindow
             key={windowState.id}
@@ -122,9 +136,17 @@ export function DesktopExperience() {
             onMinimize={() => minimizeWindow(windowState.id)}
             onToggleMaximize={() => toggleMaximizeWindow(windowState.id)}
             onMove={(x, y) => moveWindow(windowState.id, x, y)}
+            onDragMove={(x, y, width) => setSnapPreview(resolveSnapTarget(x, y, width))}
             onResize={(x: number, y: number, width: number, height: number) =>
               resizeWindow(windowState.id, x, y, width, height)
             }
+            onRestoreFromSnap={(x, y, width, height) =>
+              restoreWindowFromSnap(windowState.id, x, y, width, height)
+            }
+            onDragEnd={() => {
+              setSnapPreview(null)
+              snapWindowToEdge(windowState.id)
+            }}
           >
             {windowState.id === 'projects' ? <ProjectsWindow /> : <ContactWindow />}
           </DesktopWindow>

@@ -18,14 +18,15 @@ function toWindowState(config: WindowConfig, zIndex: number): DesktopWindowState
     isOpen: false,
     isMinimized: false,
     isMaximized: false,
+    snapMode: 'none',
   }
 }
 
 export function useWindowManager() {
-  const [, setNextZ] = useState(10)
+  const [, setNextZ] = useState(120)
   const [windows, setWindows] = useState<Record<WindowId, DesktopWindowState>>(() => ({
-    projects: toWindowState(INITIAL_WINDOWS[0], 1),
-    contact: toWindowState(INITIAL_WINDOWS[1], 2),
+    projects: toWindowState(INITIAL_WINDOWS[0], 101),
+    contact: toWindowState(INITIAL_WINDOWS[1], 102),
   }))
 
   useEffect(() => {
@@ -72,7 +73,13 @@ export function useWindowManager() {
   const closeWindow = (id: WindowId) => {
     setWindows((prev) => ({
       ...prev,
-      [id]: { ...prev[id], isOpen: false, isMinimized: false, isMaximized: false },
+      [id]: {
+        ...prev[id],
+        isOpen: false,
+        isMinimized: false,
+        isMaximized: false,
+        snapMode: 'none',
+      },
     }))
   }
 
@@ -97,6 +104,7 @@ export function useWindowManager() {
             ...current,
             ...current.restoreBounds,
             isMaximized: false,
+            snapMode: 'none',
             restoreBounds: undefined,
           },
         }
@@ -111,6 +119,7 @@ export function useWindowManager() {
           width: Math.max(window.innerWidth, 320),
           height: Math.max(window.innerHeight, 220),
           isMaximized: true,
+          snapMode: 'top',
           restoreBounds: {
             x: current.x,
             y: current.y,
@@ -129,6 +138,7 @@ export function useWindowManager() {
       [id]: {
         ...prev[id],
         isMaximized: false,
+        snapMode: 'none',
         restoreBounds: undefined,
         x,
         y,
@@ -142,6 +152,7 @@ export function useWindowManager() {
       [id]: {
         ...prev[id],
         isMaximized: false,
+        snapMode: 'none',
         restoreBounds: undefined,
         x,
         y,
@@ -149,6 +160,116 @@ export function useWindowManager() {
         height,
       },
     }))
+  }
+
+  const restoreWindowFromSnap = (id: WindowId, x: number, y: number, width: number, height: number) => {
+    setWindows((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        x,
+        y,
+        width,
+        height,
+        isMaximized: false,
+        snapMode: 'none',
+        restoreBounds: undefined,
+      },
+    }))
+    bringToFront(id)
+  }
+
+  const snapWindowToEdge = (id: WindowId) => {
+    const edgeThreshold = 28
+
+    setWindows((prev) => {
+      const current = prev[id]
+      if (!current.isOpen) return prev
+
+      const nearTop = current.y <= edgeThreshold
+      const nearLeft = current.x <= edgeThreshold
+      const nearRight = current.x + current.width >= window.innerWidth - edgeThreshold
+
+      if (!nearTop && !nearLeft && !nearRight) return prev
+
+      if (nearTop) {
+        const previousBounds =
+          current.restoreBounds ??
+          ({
+            x: current.x,
+            y: current.y,
+            width: current.width,
+            height: current.height,
+          } as const)
+
+        return {
+          ...prev,
+          [id]: {
+            ...current,
+            x: 0,
+            y: 0,
+            width: Math.max(window.innerWidth, 320),
+            height: Math.max(window.innerHeight, 220),
+            isMaximized: true,
+            snapMode: 'top',
+            restoreBounds: previousBounds,
+          },
+        }
+      }
+
+      const halfWidth = Math.max(Math.floor(window.innerWidth / 2), 320)
+      const fullHeight = Math.max(window.innerHeight, 220)
+
+      if (nearLeft) {
+        const previousBounds =
+          current.restoreBounds ??
+          ({
+            x: current.x,
+            y: current.y,
+            width: current.width,
+            height: current.height,
+          } as const)
+
+        return {
+          ...prev,
+          [id]: {
+            ...current,
+            x: 0,
+            y: 0,
+            width: halfWidth,
+            height: fullHeight,
+            isMaximized: false,
+            snapMode: 'left',
+            restoreBounds: previousBounds,
+          },
+        }
+      }
+
+      const previousBounds =
+        current.restoreBounds ??
+        ({
+          x: current.x,
+          y: current.y,
+          width: current.width,
+          height: current.height,
+        } as const)
+
+      return {
+        ...prev,
+        [id]: {
+          ...current,
+          x: Math.max(window.innerWidth - halfWidth, 0),
+          y: 0,
+          width: halfWidth,
+          height: fullHeight,
+          isMaximized: false,
+          snapMode: 'right',
+          restoreBounds: previousBounds,
+        },
+      }
+    })
+
+    bringToFront(id)
   }
 
   return {
@@ -161,5 +282,7 @@ export function useWindowManager() {
     bringToFront,
     moveWindow,
     resizeWindow,
+    restoreWindowFromSnap,
+    snapWindowToEdge,
   }
 }
