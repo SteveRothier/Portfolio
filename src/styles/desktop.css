@@ -14,27 +14,52 @@
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(circle at 70% 15%, rgba(90, 54, 205, 0.48), transparent 42%),
-    radial-gradient(circle at 10% 80%, rgba(19, 116, 255, 0.32), transparent 36%),
-    linear-gradient(120deg, var(--bg-main), var(--bg-secondary));
+    linear-gradient(rgba(8, 16, 34, 0.5), rgba(6, 10, 24, 0.62)),
+    radial-gradient(circle at 70% 15%, rgba(90, 54, 205, 0.3), transparent 42%),
+    radial-gradient(circle at 10% 80%, rgba(19, 116, 255, 0.22), transparent 36%),
+    url('../assets/background.jpg') center / cover no-repeat;
 }
 
 .desktop-status {
   position: fixed;
   left: 14px;
   right: 14px;
-  top: 14px;
-  display: flex;
-  justify-content: space-between;
+  top: 2px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  padding: 0.5rem 0.85rem;
-  border: 1px solid var(--line-soft);
+  padding: 0.5rem 0.62rem 0.5rem 0.85rem;
   border-radius: 999px;
-  backdrop-filter: blur(12px);
-  background: rgba(4, 10, 22, 0.42);
   color: var(--text-soft);
   font-size: 0.84rem;
   z-index: 30;
+}
+
+.desktop-status__brand {
+  justify-self: start;
+}
+
+.desktop-status__datetime {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.desktop-status__datetime > span {
+  display: inline-flex;
+  align-items: center;
+}
+
+.desktop-status__separator {
+  width: 2px;
+  height: 0.82em;
+  background: currentColor;
+  opacity: 0.78;
+  transform: translateY(0.01em);
 }
 
 .desktop-icons {

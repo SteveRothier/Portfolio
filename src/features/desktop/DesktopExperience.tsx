@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ContactWindow } from '../contact/ContactWindow'
 import { ProjectsWindow } from '../projects/ProjectsWindow'
@@ -14,6 +14,31 @@ const desktopIcons: { id: WindowId; label: string; badge: string }[] = [
 export function DesktopExperience() {
   const desktopRef = useRef<HTMLDivElement | null>(null)
   const { orderedWindows, openWindow, closeWindow, bringToFront, moveWindow } = useWindowManager()
+  const [now, setNow] = useState(() => new Date())
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setNow(new Date())
+    }, 1000)
+    return () => window.clearInterval(timer)
+  }, [])
+
+  const formattedDateTime = useMemo(() => {
+    const weekday = new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(now)
+    const day = new Intl.DateTimeFormat('fr-FR', { day: '2-digit' }).format(now)
+    const month = new Intl.DateTimeFormat('fr-FR', { month: 'long' }).format(now)
+    const time = new Intl.DateTimeFormat('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(now)
+
+    const toTitleCase = (value: string) => value.charAt(0).toUpperCase() + value.slice(1)
+    return {
+      date: `${toTitleCase(weekday)} ${day} ${toTitleCase(month)}`,
+      time,
+    }
+  }, [now])
 
   useLayoutEffect(() => {
     if (!desktopRef.current) return
@@ -46,8 +71,13 @@ export function DesktopExperience() {
     <section className="desktop-scene" ref={desktopRef}>
       <div className="desktop-bg" aria-hidden />
       <header className="desktop-status">
-        <span>SteveOS Portfolio</span>
-        <span>Interactive Desktop V1</span>
+        <span className="desktop-status__brand">SteveOS Portfolio</span>
+        <span className="desktop-status__datetime">
+          <span>{formattedDateTime.date}</span>
+          <span className="desktop-status__separator" aria-hidden />
+          <span>{formattedDateTime.time}</span>
+        </span>
+        <span aria-hidden />
       </header>
 
       <div className="desktop-icons">
