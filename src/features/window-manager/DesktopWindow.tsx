@@ -128,10 +128,12 @@ export function DesktopWindow({
 
       const deltaX = event.clientX - dragRef.current.startX
       const deltaY = event.clientY - dragRef.current.startY
-      const maxX = Math.max(window.innerWidth - windowState.width - 12, 0)
+      const minVisibleWidth = 120
+      const minX = -(windowState.width - minVisibleWidth)
+      const maxX = Math.max(window.innerWidth - minVisibleWidth, 0)
       const maxY = Math.max(window.innerHeight - 120, 0)
 
-      const x = Math.min(Math.max(dragRef.current.originX + deltaX, viewportPadding), maxX)
+      const x = Math.min(Math.max(dragRef.current.originX + deltaX, minX), maxX)
       const y = Math.min(Math.max(dragRef.current.originY + deltaY, minTop), maxY)
 
       onMove(x, y)
