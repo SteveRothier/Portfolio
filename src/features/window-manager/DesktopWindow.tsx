@@ -150,6 +150,7 @@ export function DesktopWindow({
     minHeight,
     minTop,
     minWidth,
+    onDragEnd,
     onDragMove,
     onMove,
     onResize,
