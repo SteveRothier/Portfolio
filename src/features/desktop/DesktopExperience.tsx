@@ -29,11 +29,11 @@ export function DesktopExperience() {
   } = useWindowManager()
   const [now, setNow] = useState(() => new Date())
   const [snapPreview, setSnapPreview] = useState<SnapTarget>(null)
-  const resolveSnapTarget = (x: number, y: number, width: number): SnapTarget => {
+  const resolveSnapTarget = (cursorX: number, cursorY: number): SnapTarget => {
     const edgeThreshold = 28
-    if (y <= edgeThreshold) return 'top'
-    if (x <= edgeThreshold) return 'left'
-    if (x + width >= window.innerWidth - edgeThreshold) return 'right'
+    if (cursorY <= edgeThreshold) return 'top'
+    if (cursorX <= edgeThreshold) return 'left'
+    if (cursorX >= window.innerWidth - edgeThreshold) return 'right'
     return null
   }
 
@@ -136,16 +136,16 @@ export function DesktopExperience() {
             onMinimize={() => minimizeWindow(windowState.id)}
             onToggleMaximize={() => toggleMaximizeWindow(windowState.id)}
             onMove={(x, y) => moveWindow(windowState.id, x, y)}
-            onDragMove={(x, y, width) => setSnapPreview(resolveSnapTarget(x, y, width))}
+            onDragMove={(cursorX, cursorY) => setSnapPreview(resolveSnapTarget(cursorX, cursorY))}
             onResize={(x: number, y: number, width: number, height: number) =>
               resizeWindow(windowState.id, x, y, width, height)
             }
             onRestoreFromSnap={(x, y, width, height) =>
               restoreWindowFromSnap(windowState.id, x, y, width, height)
             }
-            onDragEnd={() => {
+            onDragEnd={(cursorX, cursorY) => {
               setSnapPreview(null)
-              snapWindowToEdge(windowState.id)
+              snapWindowToEdge(windowState.id, cursorX, cursorY)
             }}
           >
             {windowState.id === 'projects' ? <ProjectsWindow /> : <ContactWindow />}

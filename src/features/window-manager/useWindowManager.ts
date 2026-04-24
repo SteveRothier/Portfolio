@@ -179,16 +179,16 @@ export function useWindowManager() {
     bringToFront(id)
   }
 
-  const snapWindowToEdge = (id: WindowId) => {
+  const snapWindowToEdge = (id: WindowId, cursorX: number, cursorY: number) => {
     const edgeThreshold = 28
 
     setWindows((prev) => {
       const current = prev[id]
       if (!current.isOpen) return prev
 
-      const nearTop = current.y <= edgeThreshold
-      const nearLeft = current.x <= edgeThreshold
-      const nearRight = current.x + current.width >= window.innerWidth - edgeThreshold
+      const nearTop = cursorY <= edgeThreshold
+      const nearLeft = cursorX <= edgeThreshold
+      const nearRight = cursorX >= window.innerWidth - edgeThreshold
 
       if (!nearTop && !nearLeft && !nearRight) return prev
 

@@ -9,10 +9,10 @@ type DesktopWindowProps = {
   onMinimize: () => void
   onToggleMaximize: () => void
   onMove: (x: number, y: number) => void
-  onDragMove: (x: number, y: number, width: number, height: number) => void
+  onDragMove: (cursorX: number, cursorY: number, width: number) => void
   onResize: (x: number, y: number, width: number, height: number) => void
   onRestoreFromSnap: (x: number, y: number, width: number, height: number) => void
-  onDragEnd: () => void
+  onDragEnd: (cursorX: number, cursorY: number) => void
   children: ReactNode
 }
 
@@ -65,13 +65,13 @@ export function DesktopWindow({
   })
 
   useEffect(() => {
-    const handlePointerUp = () => {
+    const handlePointerUp = (event: PointerEvent) => {
       const wasDragging = dragRef.current.dragging
       dragRef.current.dragging = false
       dragRef.current.pointerId = -1
       resizeRef.current.resizing = false
       resizeRef.current.pointerId = -1
-      if (wasDragging) onDragEnd()
+      if (wasDragging) onDragEnd(event.clientX, event.clientY)
     }
 
     const handlePointerMove = (event: PointerEvent) => {
@@ -135,7 +135,7 @@ export function DesktopWindow({
       const y = Math.min(Math.max(dragRef.current.originY + deltaY, minTop), maxY)
 
       onMove(x, y)
-      onDragMove(x, y, windowState.width, windowState.height)
+      onDragMove(event.clientX, event.clientY, windowState.width)
     }
 
     window.addEventListener('pointerup', handlePointerUp)
