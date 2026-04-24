@@ -1,0 +1,17 @@
+@import 'tailwindcss';
+
+/* Réutilise les tokens :root sans dupliquer les valeurs (voir doc Tailwind @theme inline). */
+@theme inline {
+  --color-bg-main: var(--bg-main);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-window: var(--bg-window);
+  --color-bg-window-soft: var(--bg-window-soft);
+  --color-line-soft: var(--line-soft);
+  --color-line-strong: var(--line-strong);
+  --color-text-main: var(--text-main);
+  --color-text-soft: var(--text-soft);
+  --color-glow: var(--glow);
+  --radius-xl: var(--radius-xl);
+  --radius-lg: var(--radius-lg);
+  --radius-md: var(--radius-md);
+}

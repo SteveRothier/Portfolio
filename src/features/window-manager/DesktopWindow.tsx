@@ -234,9 +234,18 @@ export function DesktopWindow({
 
   if (!windowState.isOpen) return null
 
+  const edgeSnapped = windowState.snapMode === 'left' || windowState.snapMode === 'right'
+
   return (
     <article
-      className={`desktop-window ${windowState.isMaximized ? 'desktop-window--maximized' : ''} ${windowState.snapMode === 'left' || windowState.snapMode === 'right' ? 'desktop-window--edge-snapped' : ''}`}
+      className={[
+        'desktop-window fixed overflow-hidden border bg-bg-window shadow-[0_24px_54px_rgba(0,0,0,0.42),0_0_0_1px_rgba(126,160,255,0.12)] backdrop-blur-[16px]',
+        windowState.isMaximized
+          ? 'desktop-window--maximized rounded-none border-0 shadow-none'
+          : edgeSnapped
+            ? 'desktop-window--edge-snapped rounded-none border-line-strong'
+            : 'rounded-lg border-line-strong',
+      ].join(' ')}
       style={{
         width: `${windowState.width}px`,
         height: `${windowState.height}px`,
@@ -247,12 +256,16 @@ export function DesktopWindow({
       aria-label={windowState.title}
     >
       <header
-        className="desktop-window__titlebar"
+        className="desktop-window__titlebar grid h-11 cursor-grab grid-cols-[1fr_auto_1fr] items-center border-b border-line-soft bg-[rgba(10,20,38,0.75)] px-2.5 active:cursor-grabbing md:px-3"
         onPointerDown={handlePointerDown}
         onDoubleClick={handleTitlebarDoubleClick}
       >
-        <div className="desktop-window__controls-zone">
-          <div className="desktop-window__controls" aria-hidden>
+        <span className="min-w-0" aria-hidden />
+        <p className="pointer-events-none min-w-0 justify-self-center truncate px-2 text-center text-[0.85rem] text-text-soft">
+          {windowState.title}
+        </p>
+        <div className="desktop-window__controls-zone justify-self-end">
+          <div className="desktop-window__controls flex items-center gap-1" aria-hidden>
             <button
               type="button"
               className="control control--min"
@@ -276,34 +289,40 @@ export function DesktopWindow({
             />
           </div>
         </div>
-        <p>{windowState.title}</p>
-        <span aria-hidden />
       </header>
-      <div className="desktop-window__content">{children}</div>
-      <div className="resize-handle resize-handle--top" onPointerDown={handleResizePointerDown('top')} />
+      <div className="desktop-window__content h-[calc(100%-2.75rem)] overflow-auto bg-bg-window-soft">
+        {children}
+      </div>
       <div
-        className="resize-handle resize-handle--right"
+        className="resize-handle resize-handle--top hidden md:block"
+        onPointerDown={handleResizePointerDown('top')}
+      />
+      <div
+        className="resize-handle resize-handle--right hidden md:block"
         onPointerDown={handleResizePointerDown('right')}
       />
       <div
-        className="resize-handle resize-handle--bottom"
+        className="resize-handle resize-handle--bottom hidden md:block"
         onPointerDown={handleResizePointerDown('bottom')}
       />
-      <div className="resize-handle resize-handle--left" onPointerDown={handleResizePointerDown('left')} />
       <div
-        className="resize-handle resize-handle--top-left"
+        className="resize-handle resize-handle--left hidden md:block"
+        onPointerDown={handleResizePointerDown('left')}
+      />
+      <div
+        className="resize-handle resize-handle--top-left hidden md:block"
         onPointerDown={handleResizePointerDown('top-left')}
       />
       <div
-        className="resize-handle resize-handle--top-right"
+        className="resize-handle resize-handle--top-right hidden md:block"
         onPointerDown={handleResizePointerDown('top-right')}
       />
       <div
-        className="resize-handle resize-handle--bottom-left"
+        className="resize-handle resize-handle--bottom-left hidden md:block"
         onPointerDown={handleResizePointerDown('bottom-left')}
       />
       <div
-        className="resize-handle resize-handle--bottom-right"
+        className="resize-handle resize-handle--bottom-right hidden md:block"
         onPointerDown={handleResizePointerDown('bottom-right')}
       />
     </article>

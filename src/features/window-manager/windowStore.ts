@@ -8,6 +8,7 @@ const MIN_VISIBLE_WIDTH = 120
 const MIN_TOP = 0
 const MIN_BOTTOM_VISIBLE = 120
 const EDGE_THRESHOLD = 28
+const MOBILE_LAYOUT_MAX_WIDTH = 920
 
 const INITIAL_WINDOWS: WindowConfig[] = [
   { id: 'projects', title: 'Projets', width: 680, height: 420, x: 120, y: 110 },
@@ -126,8 +127,20 @@ function isTotallyOffscreen(x: number, y: number, width: number, height: number,
 
 function clampWindowForViewport(windowState: DesktopWindowState): DesktopWindowState {
   const viewport = getViewport()
-  const clampedWidth = Math.min(Math.max(windowState.width, MIN_WIDTH), Math.max(viewport.width, MIN_WIDTH))
-  const clampedHeight = Math.min(Math.max(windowState.height, MIN_HEIGHT), Math.max(viewport.height, MIN_HEIGHT))
+  const useMobileLayout =
+    viewport.width <= MOBILE_LAYOUT_MAX_WIDTH &&
+    !windowState.isMaximized &&
+    windowState.snapMode === 'none'
+
+  const layoutWidth = useMobileLayout
+    ? Math.max(Math.min(Math.floor(viewport.width * 0.96), 680), MIN_WIDTH)
+    : Math.min(Math.max(windowState.width, MIN_WIDTH), Math.max(viewport.width, MIN_WIDTH))
+  const layoutHeight = useMobileLayout
+    ? Math.max(Math.min(Math.floor(viewport.height * 0.7), 520), MIN_HEIGHT)
+    : Math.min(Math.max(windowState.height, MIN_HEIGHT), Math.max(viewport.height, MIN_HEIGHT))
+
+  const clampedWidth = Math.min(layoutWidth, Math.max(viewport.width, MIN_WIDTH))
+  const clampedHeight = Math.min(layoutHeight, Math.max(viewport.height, MIN_HEIGHT))
 
   const minX = -(clampedWidth - MIN_VISIBLE_WIDTH)
   const maxX = Math.max(viewport.width - MIN_VISIBLE_WIDTH, 0)
@@ -137,7 +150,10 @@ function clampWindowForViewport(windowState: DesktopWindowState): DesktopWindowS
   let x = Math.min(Math.max(windowState.x, minX), maxX)
   let y = Math.min(Math.max(windowState.y, minY), maxY)
 
-  if (isTotallyOffscreen(x, y, clampedWidth, clampedHeight, viewport.width, viewport.height)) {
+  if (useMobileLayout) {
+    x = Math.max((viewport.width - clampedWidth) / 2, minX)
+    y = Math.max((viewport.height - clampedHeight) / 2, minY)
+  } else if (isTotallyOffscreen(x, y, clampedWidth, clampedHeight, viewport.width, viewport.height)) {
     x = Math.max((viewport.width - clampedWidth) / 2, minX)
     y = Math.max((viewport.height - clampedHeight) / 2, minY)
   }
@@ -192,6 +208,7 @@ export const useWindowStore = create<WindowStoreState>()(
           },
         }))
         get().bringToFront(id)
+        get().clampToViewport()
       },
       closeWindow: (id) => {
         set((state) => ({

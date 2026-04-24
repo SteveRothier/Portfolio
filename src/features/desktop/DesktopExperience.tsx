@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import gsap from 'gsap'
+import backgroundUrl from '../../assets/background.jpg'
 import { ContactWindow } from '../contact/ContactWindow'
 import { ProjectsWindow } from '../projects/ProjectsWindow'
 import { DesktopWindow } from '../window-manager/DesktopWindow'
@@ -90,23 +91,36 @@ export function DesktopExperience() {
   }, [])
 
   return (
-    <section className="desktop-scene" ref={desktopRef}>
-      <div className="desktop-bg" aria-hidden />
-      <header className="desktop-status">
-        <span className="desktop-status__brand">SteveOS Portfolio</span>
-        <span className="desktop-status__datetime">
-          <span>{formattedDateTime.date}</span>
-          <span className="desktop-status__separator" aria-hidden />
-          <span>{formattedDateTime.time}</span>
+    <section
+      className="desktop-scene relative isolate min-h-dvh overflow-hidden"
+      ref={desktopRef}
+    >
+      <div className="desktop-bg pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden>
+        <img
+          src={backgroundUrl}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          draggable={false}
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(8,16,34,0.5),rgba(6,10,24,0.62)),radial-gradient(circle_at_70%_15%,rgba(90,54,205,0.3),transparent_42%),radial-gradient(circle_at_10%_80%,rgba(19,116,255,0.22),transparent_36%)]" />
+      </div>
+      <header className="desktop-status fixed left-3 right-3 top-1 z-30 grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-full px-3 py-2 text-sm text-text-soft md:left-3.5 md:right-3.5 md:top-0.5 md:py-2 md:pl-3.5 md:pr-2.5">
+        <span className="desktop-status__brand justify-self-start truncate pr-2 text-xs md:text-sm">
+          SteveOS Portfolio
         </span>
-        <span aria-hidden />
+        <span className="desktop-status__datetime inline-flex items-center gap-1.5 justify-self-center text-xs tabular-nums leading-tight md:text-[0.82rem]">
+          <span className="inline-flex items-center">{formattedDateTime.date}</span>
+          <span className="desktop-status__separator h-[0.82em] w-0.5 shrink-0 bg-current opacity-80" aria-hidden />
+          <span className="inline-flex items-center">{formattedDateTime.time}</span>
+        </span>
+        <span aria-hidden className="justify-self-end" />
       </header>
 
-      <div className="desktop-icons">
+      <div className="desktop-icons fixed right-4 top-20 z-[15] grid gap-3 max-md:left-3 max-md:right-auto max-md:top-auto max-md:bottom-24 max-md:flex max-md:flex-row max-md:flex-wrap">
         {desktopIcons.map((icon) => (
           <button
             type="button"
-            className="desktop-icon"
+            className="desktop-icon grid w-[120px] cursor-pointer gap-1.5 rounded-[var(--radius-md)] border border-line-soft bg-[rgba(5,11,22,0.42)] p-3 text-left text-text-main md:w-[132px] md:p-[0.75rem_0.65rem]"
             key={icon.id}
             onClick={() => openWindow(icon.id)}
             onMouseEnter={(event) => {
@@ -116,16 +130,18 @@ export function DesktopExperience() {
               gsap.to(event.currentTarget, { y: 0, duration: 0.16, ease: 'power2.out' })
             }}
           >
-            <span className="desktop-icon__glyph" aria-hidden>
+            <span className="desktop-icon__glyph text-xl opacity-90" aria-hidden>
               {icon.id === 'projects' ? '▦' : '✉'}
             </span>
-            <span className="desktop-icon__label">{icon.label}</span>
-            <span className="desktop-icon__badge">{icon.badge}</span>
+            <span className="desktop-icon__label text-sm font-semibold">{icon.label}</span>
+            <span className="desktop-icon__badge justify-self-start rounded-full border border-line-soft px-1.5 py-0.5 text-[0.72rem] text-text-soft">
+              {icon.badge}
+            </span>
           </button>
         ))}
       </div>
 
-      <div className="desktop-windows">
+      <div className="desktop-windows relative min-h-dvh">
         {snapPreview ? <div className={`snap-preview snap-preview--${snapPreview}`} aria-hidden /> : null}
         {orderedWindows.map((windowState) => (
           <DesktopWindow
@@ -153,9 +169,14 @@ export function DesktopExperience() {
         ))}
       </div>
 
-      <footer className="desktop-dock">
+      <footer className="desktop-dock fixed bottom-3 left-1/2 z-40 flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-2 rounded-full border border-line-soft bg-[rgba(5,12,24,0.45)] px-2 py-1.5 backdrop-blur-md md:bottom-3.5 max-md:bottom-20">
         {desktopIcons.map((icon) => (
-          <button type="button" key={`dock-${icon.id}`} onClick={() => openWindow(icon.id)}>
+          <button
+            type="button"
+            className="rounded-full border border-line-soft bg-[rgba(6,14,28,0.8)] px-3 py-1 text-sm text-text-main"
+            key={`dock-${icon.id}`}
+            onClick={() => openWindow(icon.id)}
+          >
             {icon.label}
           </button>
         ))}
