@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import gsap from 'gsap'
 import {
+  CLOSE_NAVBAR_MENUS_EVENT,
   Dock,
   Home,
   Navbar,
@@ -110,11 +111,19 @@ export function DesktopExperience() {
     setSelectionRect({ x: event.clientX, y: event.clientY, width: 0, height: 0 })
   }
 
+  const handleScenePointerDownCapture = (event: ReactPointerEvent<HTMLElement>) => {
+    const target = event.target
+    if (!(target instanceof Element)) return
+    if (target.closest('.desktop-status')) return
+    window.dispatchEvent(new CustomEvent(CLOSE_NAVBAR_MENUS_EVENT))
+  }
+
   return (
     <section
       className="desktop-scene relative isolate min-h-dvh overflow-hidden"
       ref={desktopRef}
       onPointerDown={handleDesktopPointerDown}
+      onPointerDownCapture={handleScenePointerDownCapture}
     >
       <Welcome />
       <Navbar onOpenWindow={openWindow} />

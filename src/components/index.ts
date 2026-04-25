@@ -1,5 +1,5 @@
 export { Dock } from './Dock'
 export { Home } from './Home'
-export { Navbar } from './Navbar'
+export { CLOSE_NAVBAR_MENUS_EVENT, Navbar } from './Navbar'
 export { Welcome } from './Welcome'
 export { WindowControls } from './WindowControls'

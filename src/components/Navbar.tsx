@@ -1,5 +1,17 @@
-import { CircleUserRound, Contrast, FileText, LogOut, Mail, MonitorCog, Moon, Sun, User, Wifi } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  CircleUserRound,
+  Contrast,
+  FileText,
+  LogOut,
+  Mail,
+  MapPin,
+  MonitorCog,
+  Moon,
+  Sun,
+  User,
+  Wifi,
+} from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import type { WindowId } from '../windows/types'
 
 const THEME_MENU_ITEMS = [
@@ -35,15 +47,17 @@ type NavbarProps = {
   onOpenWindow: (id: WindowId) => void
 }
 
+/** Émis par la scène desktop quand un clic n’a pas lieu dans la barre d’état (fermeture des menus). */
+export const CLOSE_NAVBAR_MENUS_EVENT = 'steveos-close-navbar-menus'
+
 export function Navbar({ onOpenWindow }: NavbarProps) {
   const [now, setNow] = useState(() => new Date())
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => getStoredThemeMode())
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() => getSystemTheme())
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
+  const [isLocationMenuOpen, setIsLocationMenuOpen] = useState(false)
   const [isNetworkMenuOpen, setIsNetworkMenuOpen] = useState(false)
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement | null>(null)
-
   useEffect(() => {
     const timer = window.setInterval(() => {
       setNow(new Date())
@@ -72,25 +86,26 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
   }, [resolvedTheme])
 
   useEffect(() => {
-    const handlePointerDown = (event: PointerEvent) => {
-      if (!menuRef.current) return
-      if (menuRef.current.contains(event.target as Node)) return
+    const closeAllMenus = () => {
       setIsProfileMenuOpen(false)
+      setIsLocationMenuOpen(false)
       setIsNetworkMenuOpen(false)
       setIsThemeMenuOpen(false)
     }
+
+    const handleCloseRequest = () => {
+      closeAllMenus()
+    }
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setIsProfileMenuOpen(false)
-        setIsNetworkMenuOpen(false)
-        setIsThemeMenuOpen(false)
+        closeAllMenus()
       }
     }
 
-    window.addEventListener('pointerdown', handlePointerDown)
+    window.addEventListener(CLOSE_NAVBAR_MENUS_EVENT, handleCloseRequest)
     window.addEventListener('keydown', handleKeyDown)
     return () => {
-      window.removeEventListener('pointerdown', handlePointerDown)
+      window.removeEventListener(CLOSE_NAVBAR_MENUS_EVENT, handleCloseRequest)
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [])
@@ -132,13 +147,14 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
     >
       <span className="desktop-status__brand truncate pr-2 text-xs font-semibold md:text-sm">SteveOS</span>
 
-      <div className="flex items-center gap-2.5" ref={menuRef}>
+      <div className="flex items-center gap-2.5">
         <div className="relative">
           <button
             type="button"
             className="inline-flex items-center rounded p-1 text-text-main hover:opacity-80"
             onClick={() => {
               setIsProfileMenuOpen((value) => !value)
+              setIsLocationMenuOpen(false)
               setIsNetworkMenuOpen(false)
               setIsThemeMenuOpen(false)
             }}
@@ -180,8 +196,31 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
             type="button"
             className="inline-flex items-center rounded p-1 text-text-main hover:opacity-80"
             onClick={() => {
+              setIsLocationMenuOpen((value) => !value)
+              setIsProfileMenuOpen(false)
+              setIsNetworkMenuOpen(false)
+              setIsThemeMenuOpen(false)
+            }}
+            aria-label="Localisation"
+          >
+            <MapPin className="size-4.5" aria-hidden />
+          </button>
+          {isLocationMenuOpen ? (
+            <div className="absolute right-0 top-[calc(100%+0.4rem)] z-50 min-w-[154px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-md">
+              <p className="m-0 text-xs font-semibold text-text-main">Localisation</p>
+              <p className="mt-1 text-sm font-medium text-text-main">Reims</p>
+              <p className="mt-0.5 text-xs text-text-soft">France</p>
+            </div>
+          ) : null}
+        </div>
+        <div className="relative">
+          <button
+            type="button"
+            className="inline-flex items-center rounded p-1 text-text-main hover:opacity-80"
+            onClick={() => {
               setIsNetworkMenuOpen((value) => !value)
               setIsProfileMenuOpen(false)
+              setIsLocationMenuOpen(false)
               setIsThemeMenuOpen(false)
             }}
             aria-label="État du réseau"
@@ -202,6 +241,7 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
             onClick={() => {
               setIsThemeMenuOpen((value) => !value)
               setIsProfileMenuOpen(false)
+              setIsLocationMenuOpen(false)
               setIsNetworkMenuOpen(false)
             }}
             aria-label="Choisir le thème"
