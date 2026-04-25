@@ -17,3 +17,17 @@
   --radius-lg: 14px;
   --radius-md: 10px;
 }
+
+:root[data-theme='light'] {
+  --bg-main: #e8eefc;
+  --bg-secondary: #dfe7fa;
+  --bg-window: #f3f7ffdb;
+  --bg-window-soft: #ffffffde;
+  --line-soft: #5f78b240;
+  --line-strong: #4d69ad73;
+  --text-main: #10213f;
+  --text-soft: #314f7f;
+  --glow: #5f9bff66;
+  --selection-border: #1d6eff;
+  --selection-fill: #1d6eff33;
+}
