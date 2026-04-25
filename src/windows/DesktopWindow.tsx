@@ -257,12 +257,12 @@ export function DesktopWindow({
       aria-label={windowState.title}
     >
       <header
-        className="desktop-window__titlebar grid h-11 cursor-grab grid-cols-[1fr_auto_1fr] items-center border-b border-line-soft bg-[rgba(10,20,38,0.75)] px-2.5 active:cursor-grabbing md:px-3"
+        className="desktop-window__titlebar grid h-11 cursor-grab grid-cols-[1fr_auto_1fr] items-center border-b border-line-soft bg-[var(--window-header-bg)] px-2.5 active:cursor-grabbing md:px-3"
         onPointerDown={handlePointerDown}
         onDoubleClick={handleTitlebarDoubleClick}
       >
         <span className="min-w-0" aria-hidden />
-        <p className="pointer-events-none min-w-0 justify-self-center truncate px-2 text-center text-[0.85rem] text-text-soft">
+        <p className="pointer-events-none min-w-0 justify-self-center truncate px-2 text-center text-[0.85rem] text-[var(--window-header-text)]">
           {windowState.title}
         </p>
         <div className="desktop-window__controls-zone justify-self-end">

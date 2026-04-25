@@ -1,4 +1,5 @@
 import gsap from 'gsap'
+import { Folder, Mail } from 'lucide-react'
 import { desktopIcons } from '../constants/desktop'
 import type { WindowId } from '../windows/types'
 
@@ -12,7 +13,7 @@ export function Home({ onOpenWindow }: HomeProps) {
       {desktopIcons.map((icon) => (
         <button
           type="button"
-          className="desktop-icon grid w-[120px] cursor-pointer gap-1.5 rounded-[var(--radius-md)] border border-line-soft bg-[rgba(5,11,22,0.42)] p-3 text-left text-text-main md:w-[132px] md:p-[0.75rem_0.65rem]"
+          className="desktop-icon grid w-[120px] cursor-pointer gap-1.5 rounded-[var(--radius-md)] border border-[rgba(141,174,255,0.26)] bg-[var(--desktop-icon-bg)] p-3 text-left text-[#ebf1ff] md:w-[132px] md:p-[0.75rem_0.65rem]"
           key={icon.id}
           onClick={() => onOpenWindow(icon.id)}
           onMouseEnter={(event) => {
@@ -22,11 +23,15 @@ export function Home({ onOpenWindow }: HomeProps) {
             gsap.to(event.currentTarget, { y: 0, duration: 0.16, ease: 'power2.out' })
           }}
         >
-          <span className="desktop-icon__glyph text-xl opacity-90" aria-hidden>
-            {icon.id === 'projects' ? '▦' : '✉'}
+          <span className="desktop-icon__glyph opacity-95" aria-hidden>
+            {icon.id === 'projects' ? (
+              <Folder className="size-6" style={{ color: 'var(--folder-icon-color)' }} />
+            ) : (
+              <Mail className="size-6" style={{ color: 'var(--mail-icon-color)' }} />
+            )}
           </span>
           <span className="desktop-icon__label text-sm font-semibold">{icon.label}</span>
-          <span className="desktop-icon__badge justify-self-start rounded-full border border-line-soft px-1.5 py-0.5 text-[0.72rem] text-text-soft">
+          <span className="desktop-icon__badge justify-self-start rounded-full border border-[rgba(141,174,255,0.26)] px-1.5 py-0.5 text-[0.72rem] text-[#b8c7e8]">
             {icon.badge}
           </span>
         </button>

@@ -11,6 +11,12 @@
   --glow: #5f9bff57;
   --selection-border: #38bdf8;
   --selection-fill: #38bdf838;
+  --navbar-bg: linear-gradient(100deg, rgba(20, 24, 44, 0.86), rgba(32, 46, 94, 0.78));
+  --window-header-bg: #0a1426bf;
+  --window-header-text: #b8c7e8;
+  --desktop-icon-bg: #050b226b;
+  --folder-icon-color: #7bb2ff;
+  --mail-icon-color: #9bc4ff;
 
   /* Rayons (utilisés par Tailwind @theme) */
   --radius-xl: 20px;
@@ -25,9 +31,12 @@
   --bg-window-soft: #ffffffde;
   --line-soft: #5f78b240;
   --line-strong: #4d69ad73;
-  --text-main: #10213f;
-  --text-soft: #314f7f;
+  --text-main: #111111;
+  --text-soft: #111111;
   --glow: #5f9bff66;
   --selection-border: #1d6eff;
   --selection-fill: #1d6eff33;
+  --navbar-bg: #9baeff99;
+  --window-header-bg: #dfe8f7e3;
+  --window-header-text: #111111;
 }

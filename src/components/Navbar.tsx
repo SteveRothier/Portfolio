@@ -94,14 +94,21 @@ export function Navbar() {
   }, [now])
 
   return (
-    <header className="desktop-status fixed left-0 right-0 top-0 z-30 flex items-center justify-between rounded-none bg-[linear-gradient(100deg,rgba(20,24,44,0.86),rgba(32,46,94,0.78))] px-2 py-1.5 text-sm text-text-main backdrop-blur-md md:px-2.5 md:py-1.5">
+    <header
+      className="desktop-status fixed left-0 right-0 top-0 z-30 flex items-center justify-between rounded-none px-2 py-1.5 text-sm text-text-main md:px-2.5 md:py-1.5"
+      style={{
+        background: 'var(--navbar-bg)',
+        backdropFilter: 'blur(14px) saturate(135%)',
+        WebkitBackdropFilter: 'blur(14px) saturate(135%)',
+      }}
+    >
       <span className="desktop-status__brand truncate pr-2 text-xs font-semibold md:text-sm">SteveOS</span>
 
       <div className="flex items-center gap-2.5" ref={menuRef}>
         <div className="relative">
           <button
             type="button"
-            className="inline-flex items-center rounded p-1 text-text-main hover:text-white"
+            className="inline-flex items-center rounded p-1 text-text-main hover:opacity-80"
             onClick={() => setIsThemeMenuOpen((value) => !value)}
             aria-label="Choisir le theme"
           >
