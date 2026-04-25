@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { DesktopWindowState, WindowConfig, WindowId } from './types'
+import type { DesktopWindowState, WindowConfig, WindowId } from '../windows/types'
 
 const MIN_WIDTH = 320
 const MIN_HEIGHT = 220

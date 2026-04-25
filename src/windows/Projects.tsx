@@ -1,6 +1,6 @@
-import { projects } from '../../data/projects'
+import { projects } from '../data/projects'
 
-export function ProjectsWindow() {
+export function Projects() {
   return (
     <section className="projects-window p-3 md:p-3.5">
       <div className="projects-window__grid grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">

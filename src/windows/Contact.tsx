@@ -4,7 +4,7 @@ const links = [
   { label: 'LinkedIn', href: 'https://www.linkedin.com' },
 ]
 
-export function ContactWindow() {
+export function Contact() {
   return (
     <section className="contact-window grid gap-3 p-4 md:gap-3.5 md:p-4">
       <h2 className="m-0 text-lg font-semibold">Contact</h2>

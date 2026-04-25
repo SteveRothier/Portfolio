@@ -1,5 +1,9 @@
-import { AppShell } from './app/AppShell'
+import { DesktopExperience } from './windows'
 
 export default function App() {
-  return <AppShell />
+  return (
+    <main className="app-shell min-h-dvh bg-bg-main text-text-main antialiased">
+      <DesktopExperience />
+    </main>
+  )
 }

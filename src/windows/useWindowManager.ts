@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { useWindowStore } from './windowStore'
+import { useWindowStore } from '../store/windowStore'
 
 export function useWindowManager() {
   const windows = useWindowStore((state) => state.windows)

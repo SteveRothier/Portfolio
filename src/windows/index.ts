@@ -1,0 +1,6 @@
+export { Contact } from './Contact'
+export { DesktopExperience } from './DesktopExperience'
+export { DesktopWindow } from './DesktopWindow'
+export { Projects } from './Projects'
+export { useWindowManager } from './useWindowManager'
+export type { DesktopWindowState, SnapMode, WindowConfig, WindowId } from './types'
