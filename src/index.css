@@ -1,4 +1,4 @@
-@import './styles/tokens.css';
+@import './styles/global.css';
 @import './styles/reset.css';
 @import './styles/tailwind.css';
 @import './styles/desktop.css';

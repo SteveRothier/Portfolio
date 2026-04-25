@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-/* Réutilise les tokens :root sans dupliquer les valeurs (voir doc Tailwind @theme inline). */
+/* Couleurs / rayons : variables :root dans global.css (voir doc Tailwind @theme inline). */
 @theme inline {
   --color-bg-main: var(--bg-main);
   --color-bg-secondary: var(--bg-secondary);

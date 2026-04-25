@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import type { PointerEvent as ReactPointerEvent } from 'react'
 import gsap from 'gsap'
 import backgroundUrl from '../../assets/background.jpg'
 import { ContactWindow } from '../contact/ContactWindow'
@@ -13,9 +14,11 @@ const desktopIcons: { id: WindowId; label: string; badge: string }[] = [
 ]
 
 type SnapTarget = 'top' | 'left' | 'right' | null
+type SelectionRect = { x: number; y: number; width: number; height: number } | null
 
 export function DesktopExperience() {
   const desktopRef = useRef<HTMLDivElement | null>(null)
+  const selectionStartRef = useRef<{ x: number; y: number; pointerId: number } | null>(null)
   const {
     orderedWindows,
     openWindow,
@@ -30,6 +33,7 @@ export function DesktopExperience() {
   } = useWindowManager()
   const [now, setNow] = useState(() => new Date())
   const [snapPreview, setSnapPreview] = useState<SnapTarget>(null)
+  const [selectionRect, setSelectionRect] = useState<SelectionRect>(null)
   const resolveSnapTarget = (cursorX: number, cursorY: number): SnapTarget => {
     const edgeThreshold = 28
     if (cursorY <= edgeThreshold) return 'top'
@@ -90,10 +94,54 @@ export function DesktopExperience() {
     return () => ctx.revert()
   }, [])
 
+  useEffect(() => {
+    const handlePointerMove = (event: PointerEvent) => {
+      if (!selectionStartRef.current || selectionStartRef.current.pointerId !== event.pointerId) return
+      const start = selectionStartRef.current
+      const x = Math.min(start.x, event.clientX)
+      const y = Math.min(start.y, event.clientY)
+      const width = Math.abs(event.clientX - start.x)
+      const height = Math.abs(event.clientY - start.y)
+      setSelectionRect({ x, y, width, height })
+    }
+
+    const handlePointerUp = (event: PointerEvent) => {
+      if (!selectionStartRef.current || selectionStartRef.current.pointerId !== event.pointerId) return
+      selectionStartRef.current = null
+      setSelectionRect(null)
+    }
+
+    window.addEventListener('pointermove', handlePointerMove)
+    window.addEventListener('pointerup', handlePointerUp)
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove)
+      window.removeEventListener('pointerup', handlePointerUp)
+    }
+  }, [])
+
+  const handleDesktopPointerDown = (event: ReactPointerEvent<HTMLElement>) => {
+    if (event.button !== 0) return
+    const target = event.target as HTMLElement
+    if (
+      target.closest(
+        '.desktop-window, .desktop-icon, .desktop-dock, .desktop-status, .desktop-window__titlebar',
+      )
+    ) {
+      return
+    }
+    selectionStartRef.current = {
+      x: event.clientX,
+      y: event.clientY,
+      pointerId: event.pointerId,
+    }
+    setSelectionRect({ x: event.clientX, y: event.clientY, width: 0, height: 0 })
+  }
+
   return (
     <section
       className="desktop-scene relative isolate min-h-dvh overflow-hidden"
       ref={desktopRef}
+      onPointerDown={handleDesktopPointerDown}
     >
       <div className="desktop-bg pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden>
         <img
@@ -143,6 +191,20 @@ export function DesktopExperience() {
 
       <div className="desktop-windows relative min-h-dvh">
         {snapPreview ? <div className={`snap-preview snap-preview--${snapPreview}`} aria-hidden /> : null}
+        {selectionRect ? (
+          <div
+            className="desktop-selection-box pointer-events-none fixed z-20 rounded-[2px] border"
+            style={{
+              left: `${selectionRect.x}px`,
+              top: `${selectionRect.y}px`,
+              width: `${selectionRect.width}px`,
+              height: `${selectionRect.height}px`,
+              borderColor: 'var(--selection-border)',
+              backgroundColor: 'var(--selection-fill)',
+            }}
+            aria-hidden
+          />
+        ) : null}
         {orderedWindows.map((windowState) => (
           <DesktopWindow
             key={windowState.id}
