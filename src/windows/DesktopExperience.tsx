@@ -117,7 +117,7 @@ export function DesktopExperience() {
       onPointerDown={handleDesktopPointerDown}
     >
       <Welcome />
-      <Navbar />
+      <Navbar onOpenWindow={openWindow} />
       <Home onOpenWindow={openWindow} />
 
       <div className="desktop-windows relative min-h-dvh">

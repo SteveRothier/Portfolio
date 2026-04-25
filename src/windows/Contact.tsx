@@ -9,8 +9,8 @@ export function Contact() {
     <section className="contact-window grid gap-3 p-4 md:gap-3.5 md:p-4">
       <h2 className="m-0 text-lg font-semibold">Contact</h2>
       <p className="m-0 text-[0.95rem] text-text-soft">
-        Je construis des interfaces immersives et des experiences web interactives. On peut
-        discuter mission freelance, CDI ou collaboration creative.
+        Je construis des interfaces immersives et des expériences web interactives. On peut
+        discuter mission freelance, CDI ou collaboration créative.
       </p>
       <ul className="m-0 grid list-none gap-2 p-0">
         {links.map((item) => (

@@ -10,21 +10,21 @@ export function WindowControls({ onMinimize, onToggleMaximize, onClose }: Window
       <button
         type="button"
         className="control control--min"
-        aria-label="Minimiser la fenetre"
+        aria-label="Minimiser la fenêtre"
         onClick={onMinimize}
         onPointerDown={(event) => event.stopPropagation()}
       />
       <button
         type="button"
         className="control control--max"
-        aria-label="Maximiser ou restaurer la fenetre"
+        aria-label="Maximiser ou restaurer la fenêtre"
         onClick={onToggleMaximize}
         onPointerDown={(event) => event.stopPropagation()}
       />
       <button
         type="button"
         className="control control--close"
-        aria-label="Fermer la fenetre"
+        aria-label="Fermer la fenêtre"
         onClick={onClose}
         onPointerDown={(event) => event.stopPropagation()}
       />

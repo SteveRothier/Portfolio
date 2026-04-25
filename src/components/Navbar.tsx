@@ -1,11 +1,18 @@
-import { Contrast, MonitorCog, Moon, Sun } from 'lucide-react'
+import { CircleUserRound, Contrast, FileText, LogOut, Mail, MonitorCog, Moon, Sun, User, Wifi } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { WindowId } from '../windows/types'
 
 const THEME_MENU_ITEMS = [
   { mode: 'light' as const, label: 'Light', Icon: Sun },
   { mode: 'dark' as const, label: 'Dark', Icon: Moon },
-  { mode: 'system' as const, label: 'System', Icon: MonitorCog },
+  { mode: 'system' as const, label: 'Système', Icon: MonitorCog },
 ]
+const PROFILE_MENU_ITEMS = [
+  { id: 'profile', label: 'Profil', Icon: User },
+  { id: 'cv', label: 'CV', Icon: FileText },
+  { id: 'contact', label: 'Contact', Icon: Mail },
+] as const
+type ProfileMenuItemId = (typeof PROFILE_MENU_ITEMS)[number]['id']
 
 type ThemeMode = 'system' | 'light' | 'dark'
 type ResolvedTheme = 'light' | 'dark'
@@ -24,10 +31,16 @@ function getStoredThemeMode(): ThemeMode {
   return 'system'
 }
 
-export function Navbar() {
+type NavbarProps = {
+  onOpenWindow: (id: WindowId) => void
+}
+
+export function Navbar({ onOpenWindow }: NavbarProps) {
   const [now, setNow] = useState(() => new Date())
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => getStoredThemeMode())
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() => getSystemTheme())
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
+  const [isNetworkMenuOpen, setIsNetworkMenuOpen] = useState(false)
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement | null>(null)
 
@@ -62,10 +75,16 @@ export function Navbar() {
     const handlePointerDown = (event: PointerEvent) => {
       if (!menuRef.current) return
       if (menuRef.current.contains(event.target as Node)) return
+      setIsProfileMenuOpen(false)
+      setIsNetworkMenuOpen(false)
       setIsThemeMenuOpen(false)
     }
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setIsThemeMenuOpen(false)
+      if (event.key === 'Escape') {
+        setIsProfileMenuOpen(false)
+        setIsNetworkMenuOpen(false)
+        setIsThemeMenuOpen(false)
+      }
     }
 
     window.addEventListener('pointerdown', handlePointerDown)
@@ -93,6 +112,15 @@ export function Navbar() {
     }
   }, [now])
 
+  const handleProfileAction = (id: ProfileMenuItemId) => {
+    if (id === 'contact') {
+      onOpenWindow('contact')
+    }
+
+    // Fenetre CV a venir.
+    setIsProfileMenuOpen(false)
+  }
+
   return (
     <header
       className="desktop-status fixed left-0 right-0 top-0 z-30 flex items-center justify-between rounded-none px-2 py-1.5 text-sm text-text-main md:px-2.5 md:py-1.5"
@@ -109,8 +137,74 @@ export function Navbar() {
           <button
             type="button"
             className="inline-flex items-center rounded p-1 text-text-main hover:opacity-80"
-            onClick={() => setIsThemeMenuOpen((value) => !value)}
-            aria-label="Choisir le theme"
+            onClick={() => {
+              setIsProfileMenuOpen((value) => !value)
+              setIsNetworkMenuOpen(false)
+              setIsThemeMenuOpen(false)
+            }}
+            aria-label="Ouvrir le menu profil"
+          >
+            <CircleUserRound className="size-4.5" aria-hidden />
+          </button>
+          {isProfileMenuOpen ? (
+            <div className="absolute right-0 top-[calc(100%+0.4rem)] z-50 min-w-[200px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-md">
+              <div className="mb-1 rounded-md bg-[rgba(255,255,255,0.05)] px-2.5 py-2">
+                <p className="m-0 text-sm font-semibold text-text-main">SteveOS</p>
+                <p className="m-0 mt-0.5 text-xs text-text-soft">Compte local</p>
+              </div>
+              {PROFILE_MENU_ITEMS.map(({ id, label, Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-text-main hover:bg-[rgba(255,255,255,0.06)]"
+                  onClick={() => handleProfileAction(id)}
+                >
+                  <Icon className="size-4 shrink-0 opacity-90" aria-hidden />
+                  <span>{label}</span>
+                </button>
+              ))}
+              <div className="my-1 h-px bg-line-soft" aria-hidden />
+              <button
+                type="button"
+                className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-[#f47777] hover:bg-[rgba(244,119,119,0.12)]"
+                onClick={() => setIsProfileMenuOpen(false)}
+              >
+                <LogOut className="size-4 shrink-0" aria-hidden />
+                <span>Déconnexion</span>
+              </button>
+            </div>
+          ) : null}
+        </div>
+        <div className="relative">
+          <button
+            type="button"
+            className="inline-flex items-center rounded p-1 text-text-main hover:opacity-80"
+            onClick={() => {
+              setIsNetworkMenuOpen((value) => !value)
+              setIsProfileMenuOpen(false)
+              setIsThemeMenuOpen(false)
+            }}
+            aria-label="État du réseau"
+          >
+            <Wifi className="size-4.5" aria-hidden />
+          </button>
+          {isNetworkMenuOpen ? (
+            <div className="absolute right-0 top-[calc(100%+0.4rem)] z-50 min-w-[154px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-md">
+              <p className="m-0 text-xs font-semibold text-text-main">Réseau</p>
+              <p className="mt-1 text-xs text-text-soft">Accès Internet</p>
+            </div>
+          ) : null}
+        </div>
+        <div className="relative">
+          <button
+            type="button"
+            className="inline-flex items-center rounded p-1 text-text-main hover:opacity-80"
+            onClick={() => {
+              setIsThemeMenuOpen((value) => !value)
+              setIsProfileMenuOpen(false)
+              setIsNetworkMenuOpen(false)
+            }}
+            aria-label="Choisir le thème"
           >
             <Contrast className="size-4.5" aria-hidden />
           </button>
