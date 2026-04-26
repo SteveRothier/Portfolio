@@ -10,6 +10,12 @@
   border-radius: 0;
 }
 
+.desktop-status__datetime,
+.desktop-icon__badge {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
 .desktop-window__titlebar,
 .resize-handle {
   user-select: none;

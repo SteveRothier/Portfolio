@@ -1,4 +1,7 @@
 :root {
+  --font-ui: "Inter", "Segoe UI", "Noto Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
   /* Couleurs */
   --bg-main: #070d1d;
   --bg-secondary: #0f1d3a;
@@ -39,4 +42,30 @@
   --navbar-bg: #9baeff99;
   --window-header-bg: #dfe8f7e3;
   --window-header-text: #111111;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-mono);
+  color: var(--text-main);
+  background: var(--bg-main);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
 }
