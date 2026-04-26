@@ -111,19 +111,22 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
   }, [])
 
   const formattedDateTime = useMemo(() => {
-    const weekday = new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(now)
+    const weekday = new Intl.DateTimeFormat('fr-FR', { weekday: 'short' })
+      .format(now)
+      .replace('.', '')
+      .toLowerCase()
     const day = new Intl.DateTimeFormat('fr-FR', { day: '2-digit' }).format(now)
-    const month = new Intl.DateTimeFormat('fr-FR', { month: 'long' }).format(now)
+    const month = new Intl.DateTimeFormat('fr-FR', { month: 'short' })
+      .format(now)
+      .replace('.', '')
+      .toLowerCase()
     const time = new Intl.DateTimeFormat('fr-FR', {
       hour: '2-digit',
       minute: '2-digit',
       hour12: false,
     }).format(now)
-
-    const toTitleCase = (value: string) => value.charAt(0).toUpperCase() + value.slice(1)
     return {
-      date: `${toTitleCase(weekday)} ${day} ${toTitleCase(month)}`,
-      time,
+      center: `${weekday} ${day} ${month} ${time}`,
     }
   }, [now])
 
@@ -138,20 +141,25 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
 
   return (
     <header
-      className="desktop-status fixed left-0 right-0 top-0 z-30 flex items-center justify-between rounded-none px-2 py-1.5 text-sm text-text-main md:px-2.5 md:py-1.5"
+      className="desktop-status fixed left-0 right-0 top-0 z-30 flex h-9 items-center justify-between rounded-none px-2 text-sm text-text-main md:px-2.5 relative"
       style={{
         background: 'var(--navbar-bg)',
         backdropFilter: 'blur(14px) saturate(135%)',
         WebkitBackdropFilter: 'blur(14px) saturate(135%)',
       }}
     >
-      <span className="desktop-status__brand truncate pr-2 text-xs font-semibold md:text-sm">SteveOS</span>
+      <span className="desktop-status__brand inline-flex h-full items-center truncate pr-2 text-xs font-semibold leading-none md:text-sm">
+        SteveOS
+      </span>
+      <span className="desktop-status__datetime pointer-events-none absolute left-1/2 top-1/2 inline-flex h-[1rem] -translate-x-1/2 -translate-y-1/2 items-center text-xs tabular-nums leading-none text-text-main md:text-[0.82rem]">
+        {formattedDateTime.center}
+      </span>
 
-      <div className="flex items-center gap-2.5">
-        <div className="relative">
+      <div className="flex h-full items-center gap-2.5">
+        <div className="relative inline-flex h-full items-center">
           <button
             type="button"
-            className="inline-flex items-center rounded p-1 text-text-main hover:opacity-80"
+            className="inline-flex h-[1rem] w-[1rem] items-center justify-center rounded text-text-main hover:opacity-80"
             onClick={() => {
               setIsProfileMenuOpen((value) => !value)
               setIsLocationMenuOpen(false)
@@ -160,7 +168,7 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
             }}
             aria-label="Ouvrir le menu profil"
           >
-            <CircleUserRound className="size-4.5" aria-hidden />
+            <CircleUserRound className="size-[0.95rem]" aria-hidden />
           </button>
           {isProfileMenuOpen ? (
             <div className="absolute right-0 top-[calc(100%+0.4rem)] z-50 min-w-[200px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-md">
@@ -191,10 +199,10 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
             </div>
           ) : null}
         </div>
-        <div className="relative">
+        <div className="relative inline-flex h-full items-center">
           <button
             type="button"
-            className="inline-flex items-center rounded p-1 text-text-main hover:opacity-80"
+            className="inline-flex h-[1rem] w-[1rem] items-center justify-center rounded text-text-main hover:opacity-80"
             onClick={() => {
               setIsLocationMenuOpen((value) => !value)
               setIsProfileMenuOpen(false)
@@ -203,7 +211,7 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
             }}
             aria-label="Localisation"
           >
-            <MapPin className="size-4.5" aria-hidden />
+            <MapPin className="size-[0.95rem]" aria-hidden />
           </button>
           {isLocationMenuOpen ? (
             <div className="absolute right-0 top-[calc(100%+0.4rem)] z-50 min-w-[154px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-md">
@@ -213,10 +221,10 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
             </div>
           ) : null}
         </div>
-        <div className="relative">
+        <div className="relative inline-flex h-full items-center">
           <button
             type="button"
-            className="inline-flex items-center rounded p-1 text-text-main hover:opacity-80"
+            className="inline-flex h-[1rem] w-[1rem] items-center justify-center rounded text-text-main hover:opacity-80"
             onClick={() => {
               setIsNetworkMenuOpen((value) => !value)
               setIsProfileMenuOpen(false)
@@ -225,7 +233,7 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
             }}
             aria-label="État du réseau"
           >
-            <Wifi className="size-4.5" aria-hidden />
+            <Wifi className="size-[0.95rem]" aria-hidden />
           </button>
           {isNetworkMenuOpen ? (
             <div className="absolute right-0 top-[calc(100%+0.4rem)] z-50 min-w-[154px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-md">
@@ -234,10 +242,10 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
             </div>
           ) : null}
         </div>
-        <div className="relative">
+        <div className="relative inline-flex h-full items-center">
           <button
             type="button"
-            className="inline-flex items-center rounded p-1 text-text-main hover:opacity-80"
+            className="inline-flex h-[1rem] w-[1rem] items-center justify-center rounded text-text-main hover:opacity-80"
             onClick={() => {
               setIsThemeMenuOpen((value) => !value)
               setIsProfileMenuOpen(false)
@@ -246,7 +254,7 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
             }}
             aria-label="Choisir le thème"
           >
-            <Contrast className="size-4.5" aria-hidden />
+            <Contrast className="size-[0.95rem]" aria-hidden />
           </button>
           {isThemeMenuOpen ? (
             <div className="absolute right-0 top-[calc(100%+0.4rem)] z-50 min-w-[152px] rounded-md border border-line-soft bg-bg-window p-1.5 shadow-lg backdrop-blur-md">
@@ -270,11 +278,6 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
             </div>
           ) : null}
         </div>
-        <span className="desktop-status__datetime inline-flex items-center gap-1.5 text-xs tabular-nums leading-tight text-text-main md:text-[0.82rem]">
-          <span className="inline-flex items-center">{formattedDateTime.date}</span>
-          <span className="desktop-status__separator h-[0.82em] w-0.5 shrink-0 bg-current opacity-80" aria-hidden />
-          <span className="inline-flex items-center">{formattedDateTime.time}</span>
-        </span>
       </div>
     </header>
   )
