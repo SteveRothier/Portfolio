@@ -162,8 +162,6 @@ export function DesktopWindow({
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (resizeRef.current.resizing) return
-    const target = event.target as HTMLElement
-    if (target.closest('.desktop-window__controls-zone')) return
 
     const hasSnapBounds = Boolean(windowState.restoreBounds)
     if (windowState.isMaximized || hasSnapBounds) {
@@ -227,9 +225,7 @@ export function DesktopWindow({
     onFocus()
   }
 
-  const handleTitlebarDoubleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    const target = event.target as HTMLElement
-    if (target.closest('.desktop-window__controls-zone')) return
+  const handleTitlebarDoubleClick = () => {
     onToggleMaximize()
   }
 
@@ -256,23 +252,26 @@ export function DesktopWindow({
       onMouseDown={handleWindowMouseDown}
       aria-label={windowState.title}
     >
-      <header
-        className="desktop-window__titlebar grid h-11 cursor-grab grid-cols-[1fr_auto_1fr] items-center border-b border-line-soft bg-[var(--window-header-bg)] px-2.5 active:cursor-grabbing md:px-3"
-        onPointerDown={handlePointerDown}
-        onDoubleClick={handleTitlebarDoubleClick}
-      >
-        <span className="min-w-0" aria-hidden />
-        <p className="pointer-events-none min-w-0 justify-self-center truncate px-2 text-center text-[0.85rem] text-[var(--window-header-text)]">
-          {windowState.title}
-        </p>
-        <div className="desktop-window__controls-zone justify-self-end">
-          <WindowControls
-            onMinimize={onMinimize}
-            onToggleMaximize={onToggleMaximize}
-            onClose={onClose}
-          />
+      <div className="desktop-window__topbar grid h-11 grid-cols-[1fr_auto] items-stretch border-b border-line-soft bg-[var(--window-header-bg)]">
+        <header
+          className="desktop-window__titlebar flex min-w-0 cursor-grab items-center justify-center px-2.5 active:cursor-grabbing md:px-3"
+          onPointerDown={handlePointerDown}
+          onDoubleClick={handleTitlebarDoubleClick}
+        >
+          <p className="pointer-events-none min-w-0 truncate px-2 text-center text-[0.85rem] text-[var(--window-header-text)]">
+            {windowState.title}
+          </p>
+        </header>
+        <div className="desktop-window__controls-panel">
+          <div className="desktop-window__controls-zone">
+            <WindowControls
+              onMinimize={onMinimize}
+              onToggleMaximize={onToggleMaximize}
+              onClose={onClose}
+            />
+          </div>
         </div>
-      </header>
+      </div>
       <div className="desktop-window__content h-[calc(100%-2.75rem)] overflow-auto bg-bg-window-soft">
         {children}
       </div>

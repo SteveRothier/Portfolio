@@ -25,10 +25,18 @@
   cursor: grabbing;
 }
 
+.desktop-window__controls-panel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 0.5rem;
+  cursor: default;
+}
+
 .desktop-window__controls-zone {
   min-width: 84px;
   height: 100%;
-  padding: 0 0 0 0.5rem;
+  padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
@@ -81,7 +89,7 @@
   transition: opacity 0.15s ease;
 }
 
-.desktop-window__titlebar:hover .control svg,
+.desktop-window__topbar:hover .control svg,
 .control:focus-visible svg {
   opacity: 1;
 }
