@@ -1,8 +1,8 @@
-import browserIcon from '../assets/icons/browser.png'
-import contactIcon from '../assets/icons/contact.png'
-import filesIcon from '../assets/icons/files.png'
-import projetsIcon from '../assets/icons/projets.png'
-import terminalIcon from '../assets/icons/terminal.png'
+import browserIcon from '../assets/icons/browser.ico'
+import contactIcon from '../assets/icons/contact.ico'
+import filesIcon from '../assets/icons/folder.ico'
+import githubIcon from '../assets/icons/github.ico'
+import terminalIcon from '../assets/icons/terminal.ico'
 import type { DockIconAsset } from '../constants/desktop'
 import { dockApps } from '../constants/desktop'
 import type { DesktopWindowState, WindowId } from '../windows/types'
@@ -16,7 +16,7 @@ const DOCK_IMAGES: Record<DockIconAsset, string> = {
   files: filesIcon,
   browser: browserIcon,
   terminal: terminalIcon,
-  projects: projetsIcon,
+  projects: githubIcon,
   contact: contactIcon,
 }
 
@@ -27,7 +27,7 @@ export function Dock({ onOpenWindow, windows }: DockProps) {
   }
 
   return (
-    <footer className="desktop-dock fixed bottom-3 left-1/2 z-40 inline-flex max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center justify-center gap-2.5 md:bottom-3.5 max-md:bottom-20">
+    <footer className="desktop-dock fixed bottom-3 left-1/2 z-40 inline-flex max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center justify-center gap-1.5 rounded-[11px] border border-[rgba(126,151,255,0.28)] bg-[linear-gradient(180deg,rgba(43,31,76,0.82),rgba(26,18,49,0.84))] px-2.5 py-1 shadow-[0_8px_24px_rgba(10,3,28,0.46),inset_0_1px_0_rgba(170,196,255,0.16)] backdrop-blur-md md:bottom-3.5 max-md:bottom-20">
       {dockApps.map((app) => {
         const src = DOCK_IMAGES[app.iconAsset]
         const windowState = app.windowId ? windows[app.windowId] : undefined
@@ -37,16 +37,16 @@ export function Dock({ onOpenWindow, windows }: DockProps) {
           <button
             type="button"
             key={app.id}
-            className="group relative inline-flex min-h-[3rem] min-w-[3rem] items-center justify-center rounded-none bg-transparent transition-transform duration-150 hover:-translate-y-1 hover:scale-[1.05] disabled:cursor-default disabled:opacity-85"
+            className={`group relative inline-flex h-10 w-10 items-center justify-center rounded-md transition-all duration-150 hover:-translate-y-0.5 hover:scale-[1.03] disabled:cursor-default disabled:opacity-85 ${
+              isOpen
+                ? 'bg-[rgba(244,88,176,0.2)] shadow-[inset_0_0_0_1px_rgba(246,132,197,0.28)]'
+                : 'bg-transparent hover:bg-[rgba(88,66,144,0.32)]'
+            }`}
             onClick={() => handleDockClick(app.windowId)}
             disabled={!app.windowId}
             aria-label={app.label}
           >
-            <img src={src} alt="" className="size-10 object-contain select-none pointer-events-none md:size-11" draggable={false} />
-            <span
-              className={`absolute -bottom-1 h-1.5 w-1.5 rounded-full transition-opacity ${isOpen ? 'bg-[#7bc2ff] opacity-100' : 'bg-transparent opacity-0'}`}
-              aria-hidden
-            />
+            <img src={src} alt="" className="size-7 object-contain select-none pointer-events-none md:size-8" draggable={false} />
           </button>
         )
       })}
