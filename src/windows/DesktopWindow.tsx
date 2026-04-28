@@ -252,15 +252,16 @@ export function DesktopWindow({
       onMouseDown={handleWindowMouseDown}
       aria-label={windowState.title}
     >
-      <div className="desktop-window__topbar grid h-11 grid-cols-[1fr_auto] items-stretch border-b border-line-soft bg-[var(--window-header-bg)]">
+      <div className="desktop-window__topbar relative grid h-11 grid-cols-[1fr_auto] items-stretch border-b border-line-soft bg-[var(--window-header-bg)]">
+        <p className="pointer-events-none absolute left-1/2 top-1/2 m-0 w-[60%] -translate-x-1/2 -translate-y-1/2 truncate px-2 text-center text-[0.85rem] text-[var(--window-header-text)]">
+          {windowState.title}
+        </p>
         <header
           className="desktop-window__titlebar flex min-w-0 cursor-grab items-center justify-center px-2.5 active:cursor-grabbing md:px-3"
           onPointerDown={handlePointerDown}
           onDoubleClick={handleTitlebarDoubleClick}
         >
-          <p className="pointer-events-none min-w-0 truncate px-2 text-center text-[0.85rem] text-[var(--window-header-text)]">
-            {windowState.title}
-          </p>
+          <span className="sr-only">{windowState.title}</span>
         </header>
         <div className="desktop-window__controls-panel">
           <div className="desktop-window__controls-zone">
