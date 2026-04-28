@@ -172,7 +172,7 @@ export function DesktopExperience() {
         ))}
       </div>
 
-      <Dock onOpenWindow={openWindow} windows={windows} />
+      <Dock onOpenWindow={openWindow} onMinimizeWindow={minimizeWindow} windows={windows} />
     </section>
   )
 }

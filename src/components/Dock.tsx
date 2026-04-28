@@ -9,6 +9,7 @@ import type { DesktopWindowState, WindowId } from '../windows/types'
 
 type DockProps = {
   onOpenWindow: (id: WindowId) => void
+  onMinimizeWindow: (id: WindowId) => void
   windows: Record<WindowId, DesktopWindowState>
 }
 
@@ -20,16 +21,20 @@ const DOCK_IMAGES: Record<DockIconAsset, string> = {
   contact: contactIcon,
 }
 
-export function Dock({ onOpenWindow, windows }: DockProps) {
-  const handleDockClick = (windowId?: WindowId) => {
-    if (!windowId) return
-    onOpenWindow(windowId)
-  }
-
+export function Dock({ onOpenWindow, onMinimizeWindow, windows }: DockProps) {
   const activeWindowId =
     (Object.values(windows)
       .filter((windowState) => windowState.isOpen && !windowState.isMinimized)
       .sort((a, b) => b.zIndex - a.zIndex)[0]?.id as WindowId | undefined) ?? undefined
+
+  const handleDockClick = (windowId?: WindowId) => {
+    if (!windowId) return
+    if (activeWindowId === windowId) {
+      onMinimizeWindow(windowId)
+      return
+    }
+    onOpenWindow(windowId)
+  }
 
   return (
     <footer className="desktop-dock fixed bottom-0 left-1/2 z-40 inline-flex max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center justify-center gap-1.5 rounded-t-[5px] rounded-b-none border border-b-0 border-[rgba(66,52,104,0.72)] bg-[linear-gradient(180deg,rgba(43,31,76,0.82),rgba(26,18,49,0.84))] px-2.5 py-1 shadow-[0_8px_24px_rgba(10,3,28,0.46),inset_0_1px_0_rgba(170,196,255,0.16)] backdrop-blur-md">
