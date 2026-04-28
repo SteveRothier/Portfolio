@@ -20,6 +20,7 @@ export function DesktopExperience() {
   const desktopRef = useRef<HTMLDivElement | null>(null)
   const selectionStartRef = useRef<{ x: number; y: number; pointerId: number } | null>(null)
   const {
+    windows,
     orderedWindows,
     openWindow,
     closeWindow,
@@ -171,7 +172,7 @@ export function DesktopExperience() {
         ))}
       </div>
 
-      <Dock onOpenWindow={openWindow} />
+      <Dock onOpenWindow={openWindow} windows={windows} />
     </section>
   )
 }
