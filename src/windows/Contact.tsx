@@ -25,7 +25,7 @@ export function Contact() {
   return (
     <section className="contact-window flex h-full flex-col gap-5 p-4 text-[#f0f0f2] md:p-5">
       <div className="grid gap-2">
-        <h2 className="m-0 text-3xl font-semibold tracking-tight">Entrons en contact</h2>
+        <h2 className="m-0 text-lg font-semibold tracking-tight">Entrons en contact</h2>
       </div>
 
       <ul className="m-0 mt-auto grid list-none grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-3 p-0">
