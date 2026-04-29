@@ -1,3 +1,5 @@
+import { Check, ArrowRight } from 'lucide-react'
+
 const coreSkills = [
   { label: 'Language', value: 'TypeScript (principal)' },
   { label: 'Frontend', value: 'React, Tailwind CSS' },
@@ -17,9 +19,16 @@ export function Terminal() {
         <span className="text-[#9aa0b5]">steve@portfolio:~$</span>{' '}
         <span className="text-[#f3f4f8]">npm run dev</span>
         {'\n'}
-        <span className="text-[#00d084]">✓ VITE v7.3.1 ready in 589 ms</span>
+        <span className="inline-flex items-center gap-1 text-[#00d084]">
+          <Check className="size-3.5" aria-hidden />
+          <span>VITE v7.3.1 ready in 589 ms</span>
+        </span>
         {'\n'}
-        <span className="text-[#7dd3fc]">➜  Local:</span> http://localhost:5173/
+        <span className="inline-flex items-center gap-1 text-[#7dd3fc]">
+          <ArrowRight className="size-3.5" aria-hidden />
+          <span>Local:</span>
+        </span>{' '}
+        http://localhost:5173/
         {'\n\n'}
         <span className="text-[#9aa0b5]">steve@portfolio:~$</span>{' '}
         <span className="text-[#f3f4f8]">skills --current</span>
