@@ -232,7 +232,6 @@ export function DesktopWindow({
   if (!windowState.isOpen) return null
 
   const edgeSnapped = windowState.snapMode === 'left' || windowState.snapMode === 'right'
-  const isContactWindow = windowState.id === 'contact'
 
   return (
     <article
@@ -253,11 +252,7 @@ export function DesktopWindow({
       onMouseDown={handleWindowMouseDown}
       aria-label={windowState.title}
     >
-      <div
-        className={`desktop-window__topbar relative grid h-11 grid-cols-[1fr_auto] items-stretch ${
-          isContactWindow ? 'border-b-0 bg-transparent' : 'border-b border-line-soft bg-[var(--window-header-bg)]'
-        }`}
-      >
+      <div className="desktop-window__topbar relative grid h-11 grid-cols-[1fr_auto] items-stretch border-b-0 bg-transparent">
         <p className="pointer-events-none absolute left-1/2 top-1/2 m-0 w-[60%] -translate-x-1/2 -translate-y-1/2 truncate px-2 text-center text-[0.85rem] text-[var(--window-header-text)]">
           {windowState.title}
         </p>
@@ -278,11 +273,7 @@ export function DesktopWindow({
           </div>
         </div>
       </div>
-      <div
-        className={`desktop-window__content h-[calc(100%-2.75rem)] overflow-auto ${
-          isContactWindow ? 'bg-transparent' : 'bg-bg-window-soft'
-        }`}
-      >
+      <div className="desktop-window__content h-[calc(100%-2.75rem)] overflow-auto bg-transparent">
         {children}
       </div>
       <div
