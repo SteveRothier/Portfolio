@@ -3,6 +3,7 @@ import contactIcon from '../assets/icons/contact.ico'
 import filesIcon from '../assets/icons/folder.ico'
 import githubIcon from '../assets/icons/github.ico'
 import terminalIcon from '../assets/icons/terminal.ico'
+import trashIcon from '../assets/icons/trash.ico'
 import type { DockIconAsset } from '../constants/desktop'
 import { dockApps } from '../constants/desktop'
 import type { DesktopWindowState, WindowId } from '../windows/types'
@@ -19,6 +20,7 @@ const DOCK_IMAGES: Record<DockIconAsset, string> = {
   terminal: terminalIcon,
   projects: githubIcon,
   contact: contactIcon,
+  trash: trashIcon,
 }
 
 export function Dock({ onOpenWindow, onMinimizeWindow, windows }: DockProps) {
@@ -48,7 +50,7 @@ export function Dock({ onOpenWindow, onMinimizeWindow, windows }: DockProps) {
           <div key={app.id} className="relative inline-flex h-10 w-10 items-center justify-center">
             <button
               type="button"
-              className={`group relative inline-flex h-10 w-10 items-center justify-center rounded-md transition-all duration-150 hover:-translate-y-0.5 hover:scale-[1.03] disabled:cursor-default disabled:opacity-85 ${
+              className={`group relative inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md transition-transform duration-250 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:scale-[1.03] will-change-transform disabled:cursor-default disabled:opacity-85 ${
                 isOpen
                   ? 'bg-transparent shadow-none'
                   : 'bg-transparent hover:bg-transparent'
@@ -60,7 +62,7 @@ export function Dock({ onOpenWindow, onMinimizeWindow, windows }: DockProps) {
               <img src={src} alt="" className="size-7 object-contain select-none pointer-events-none md:size-8" draggable={false} />
             </button>
             <span
-              className={`absolute -bottom-[4px] left-1/2 -translate-x-1/2 rounded-full bg-[#ff4fd6] shadow-[0_0_8px_rgba(255,79,214,0.55)] transition-all duration-150 ${
+              className={`absolute -bottom-[4px] left-1/2 -translate-x-1/2 rounded-full bg-[#ff4fd6] shadow-[0_0_8px_rgba(255,79,214,0.55)] transition-[width,opacity,transform] duration-250 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${
                 isActive ? 'h-[2px] w-5 opacity-100' : isOpen ? 'h-[2px] w-1.5 opacity-95' : 'h-[2px] w-1.5 opacity-0'
               }`}
               aria-hidden

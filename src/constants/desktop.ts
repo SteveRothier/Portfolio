@@ -6,7 +6,7 @@ export const desktopIcons: { id: WindowId; label: string; badge: string }[] = [
 ]
 
 /** Clé = fichier dans `src/assets/icons/` (images du dock). */
-export type DockIconAsset = 'files' | 'browser' | 'terminal' | 'projects' | 'contact'
+export type DockIconAsset = 'files' | 'browser' | 'terminal' | 'projects' | 'contact' | 'trash'
 
 export type DockApp = {
   id: DockIconAsset
@@ -21,4 +21,5 @@ export const dockApps: DockApp[] = [
   { id: 'terminal', label: 'Terminal', iconAsset: 'terminal' },
   { id: 'projects', label: 'Projets', iconAsset: 'projects', windowId: 'projects' },
   { id: 'contact', label: 'Contact', iconAsset: 'contact', windowId: 'contact' },
+  { id: 'trash', label: 'Corbeille', iconAsset: 'trash' },
 ]
