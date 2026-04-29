@@ -18,7 +18,7 @@ export type DockApp = {
 export const dockApps: DockApp[] = [
   { id: 'browser', label: 'Navigateur', iconAsset: 'browser' },
   { id: 'files', label: 'Fichiers', iconAsset: 'files' },
-  { id: 'terminal', label: 'Terminal', iconAsset: 'terminal' },
+  { id: 'terminal', label: 'Terminal', iconAsset: 'terminal', windowId: 'terminal' },
   { id: 'projects', label: 'Projets', iconAsset: 'projects', windowId: 'projects' },
   { id: 'contact', label: 'Contact', iconAsset: 'contact', windowId: 'contact' },
   { id: 'trash', label: 'Corbeille', iconAsset: 'trash' },

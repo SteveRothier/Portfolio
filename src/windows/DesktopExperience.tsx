@@ -10,6 +10,7 @@ import {
 } from '../components'
 import { Contact } from './Contact'
 import { Projects } from './Projects'
+import { Terminal } from './Terminal'
 import { DesktopWindow } from './DesktopWindow'
 import { useWindowManager } from './useWindowManager'
 
@@ -167,7 +168,13 @@ export function DesktopExperience() {
               snapWindowToEdge(windowState.id, cursorX, cursorY)
             }}
           >
-            {windowState.id === 'projects' ? <Projects /> : <Contact />}
+            {windowState.id === 'projects' ? (
+              <Projects />
+            ) : windowState.id === 'terminal' ? (
+              <Terminal />
+            ) : (
+              <Contact />
+            )}
           </DesktopWindow>
         ))}
       </div>

@@ -13,11 +13,19 @@ const MOBILE_LAYOUT_MAX_WIDTH = 920
 const INITIAL_WINDOWS: WindowConfig[] = [
   { id: 'projects', title: 'Projets', width: 680, height: 420, x: 120, y: 110 },
   { id: 'contact', title: 'Contact', width: 420, height: 360, x: 220, y: 170 },
+  { id: 'terminal', title: 'Terminal', width: 760, height: 430, x: 170, y: 130 },
 ]
 
 const WINDOW_TITLES: Record<WindowId, string> = {
   projects: 'Projets',
   contact: 'Contact',
+  terminal: 'Terminal',
+}
+
+const DEFAULT_WINDOW_SIZE: Record<WindowId, { width: number; height: number }> = {
+  projects: { width: 680, height: 420 },
+  contact: { width: 420, height: 360 },
+  terminal: { width: 760, height: 430 },
 }
 
 type RestoreBounds = NonNullable<DesktopWindowState['restoreBounds']>
@@ -58,6 +66,7 @@ function getInitialState(): PersistedWindowStore {
     windows: {
       projects: toWindowState(INITIAL_WINDOWS[0], 101),
       contact: toWindowState(INITIAL_WINDOWS[1], 102),
+      terminal: toWindowState(INITIAL_WINDOWS[2], 103),
     },
   }
 }
@@ -81,6 +90,7 @@ function sanitizeRestoreBounds(value: unknown): RestoreBounds | undefined {
 
 function sanitizeWindowState(windowId: WindowId, candidate: unknown, fallbackZ: number): DesktopWindowState {
   const source = candidate && typeof candidate === 'object' ? (candidate as Partial<DesktopWindowState>) : {}
+  const defaults = DEFAULT_WINDOW_SIZE[windowId]
   return {
     id: windowId,
     title: WINDOW_TITLES[windowId],
@@ -93,8 +103,8 @@ function sanitizeWindowState(windowId: WindowId, candidate: unknown, fallbackZ: 
         : 'none',
     x: toFiniteNumber(source.x, 0),
     y: toFiniteNumber(source.y, 0),
-    width: Math.max(toFiniteNumber(source.width, windowId === 'projects' ? 680 : 420), MIN_WIDTH),
-    height: Math.max(toFiniteNumber(source.height, windowId === 'projects' ? 420 : 360), MIN_HEIGHT),
+    width: Math.max(toFiniteNumber(source.width, defaults.width), MIN_WIDTH),
+    height: Math.max(toFiniteNumber(source.height, defaults.height), MIN_HEIGHT),
     zIndex: Math.max(toFiniteNumber(source.zIndex, fallbackZ), 1),
     restoreBounds: sanitizeRestoreBounds(source.restoreBounds),
   }
@@ -110,6 +120,7 @@ function sanitizePersistedState(input: unknown): PersistedWindowStore {
     windows: {
       projects: sanitizeWindowState('projects', source.windows?.projects, initial.windows.projects.zIndex),
       contact: sanitizeWindowState('contact', source.windows?.contact, initial.windows.contact.zIndex),
+      terminal: sanitizeWindowState('terminal', source.windows?.terminal, initial.windows.terminal.zIndex),
     },
   }
 }
@@ -414,6 +425,7 @@ export const useWindowStore = create<WindowStoreState>()(
           windows: {
             projects: { ...state.windows.projects, title: WINDOW_TITLES.projects },
             contact: { ...state.windows.contact, title: WINDOW_TITLES.contact },
+            terminal: { ...state.windows.terminal, title: WINDOW_TITLES.terminal },
           },
         }))
       },
@@ -422,6 +434,7 @@ export const useWindowStore = create<WindowStoreState>()(
           windows: {
             projects: clampWindowForViewport(state.windows.projects),
             contact: clampWindowForViewport(state.windows.contact),
+            terminal: clampWindowForViewport(state.windows.terminal),
           },
         }))
       },
