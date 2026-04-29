@@ -42,7 +42,7 @@ export function DesktopWindow({
 }: DesktopWindowProps) {
   const minWidth = 320
   const minHeight = 220
-  const minTop = 0
+  const minTop = -44
   const viewportPadding = 10
 
   const dragRef = useRef({

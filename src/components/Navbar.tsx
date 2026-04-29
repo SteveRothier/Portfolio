@@ -141,7 +141,7 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
 
   return (
     <header
-      className="desktop-status fixed left-0 right-0 top-0 z-30 flex h-9 items-center justify-between rounded-none px-2 text-sm text-text-main md:px-2.5 relative"
+      className="desktop-status fixed left-0 right-0 top-0 z-10 flex h-9 items-center justify-between rounded-none px-2 text-sm text-text-main md:px-2.5 relative"
       style={{
         background: 'var(--navbar-bg)',
         backdropFilter: 'blur(14px) saturate(135%)',
