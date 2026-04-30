@@ -77,24 +77,26 @@ export function DesktopWindow({
   useEffect(() => {
     if (!windowRef.current) return
     isClosingRef.current = false
-    gsap.fromTo(
-      windowRef.current,
-      { opacity: 0, scale: 0.985, y: 8 },
-      { opacity: 1, scale: 1, y: 0, duration: 0.2, ease: 'power2.out' },
-    )
+    const fromVars = windowState.isMaximized
+      ? { opacity: 0 }
+      : { opacity: 0, scale: 0.985, y: 8 }
+    const toVars = windowState.isMaximized
+      ? { opacity: 1, duration: 0.18, ease: 'power2.out' }
+      : { opacity: 1, scale: 1, y: 0, duration: 0.2, ease: 'power2.out' }
+    gsap.fromTo(windowRef.current, fromVars, toVars)
   }, [windowState.id, windowState.isOpen])
 
   useLayoutEffect(() => {
     if (!pendingFlipRef.current || !windowRef.current || !beforeToggleRectRef.current) return
 
+    const previousRect = beforeToggleRectRef.current
     const nextRect = windowRef.current.getBoundingClientRect()
-    const prevRect = beforeToggleRectRef.current
+    const deltaX = previousRect.left - nextRect.left
+    const deltaY = previousRect.top - nextRect.top
+    const scaleX = previousRect.width / Math.max(nextRect.width, 1)
+    const scaleY = previousRect.height / Math.max(nextRect.height, 1)
 
-    const deltaX = prevRect.left - nextRect.left
-    const deltaY = prevRect.top - nextRect.top
-    const scaleX = prevRect.width / Math.max(nextRect.width, 1)
-    const scaleY = prevRect.height / Math.max(nextRect.height, 1)
-
+    gsap.killTweensOf(windowRef.current)
     gsap.fromTo(
       windowRef.current,
       {
@@ -102,6 +104,7 @@ export function DesktopWindow({
         y: deltaY,
         scaleX,
         scaleY,
+        opacity: 0.92,
         transformOrigin: 'top left',
       },
       {
@@ -109,6 +112,7 @@ export function DesktopWindow({
         y: 0,
         scaleX: 1,
         scaleY: 1,
+        opacity: 1,
         duration: 0.24,
         ease: 'power2.out',
         clearProps: 'transformOrigin',
@@ -311,13 +315,23 @@ export function DesktopWindow({
   const runMinimizeAnimation = (onComplete: () => void) => {
     if (!windowRef.current || isClosingRef.current) return
     isClosingRef.current = true
+    const minimizeVars = windowState.isMaximized
+      ? {
+          opacity: 0,
+          duration: 0.14,
+          ease: 'power2.in',
+          onComplete,
+        }
+      : {
+          opacity: 0,
+          scale: 0.99,
+          y: 10,
+          duration: 0.16,
+          ease: 'power2.in',
+          onComplete,
+        }
     gsap.to(windowRef.current, {
-      opacity: 0,
-      scale: 0.99,
-      y: 10,
-      duration: 0.16,
-      ease: 'power2.in',
-      onComplete,
+      ...minimizeVars,
     })
   }
 
@@ -348,7 +362,8 @@ export function DesktopWindow({
       style={{
         width: `${windowState.width}px`,
         height: `${windowState.height}px`,
-        transform: `translate3d(${windowState.x}px, ${windowState.y}px, 0)`,
+        left: `${windowState.x}px`,
+        top: `${windowState.y}px`,
         zIndex: windowState.zIndex,
       }}
       onMouseDown={handleWindowMouseDown}
