@@ -143,11 +143,11 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
     <header
       className="desktop-status fixed left-0 right-0 top-0 z-30 flex h-9 items-center justify-between rounded-none px-2 text-sm text-text-main md:px-2.5 relative"
       style={{
-        background: 'linear-gradient(180deg, rgba(20, 32, 60, 0.46), rgba(13, 24, 46, 0.42))',
-        backdropFilter: 'blur(10px) saturate(125%)',
-        WebkitBackdropFilter: 'blur(10px) saturate(125%)',
-        borderBottom: '1px solid rgba(46, 70, 118, 0.34)',
-        boxShadow: '0 4px 14px rgba(3, 10, 24, 0.22)',
+        background: 'linear-gradient(180deg, rgba(14, 66, 64, 0.5), rgba(8, 42, 46, 0.46))',
+        backdropFilter: 'blur(6px) saturate(120%)',
+        WebkitBackdropFilter: 'blur(6px) saturate(120%)',
+        borderBottom: '1px solid rgba(74, 164, 148, 0.34)',
+        boxShadow: '0 4px 14px rgba(3, 18, 22, 0.28)',
       }}
     >
       <span className="desktop-status__brand inline-flex h-full items-center truncate pr-2 text-xs font-semibold leading-none md:text-sm">
@@ -173,7 +173,7 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
             <CircleUserRound className="size-[0.95rem]" aria-hidden />
           </button>
           {isProfileMenuOpen ? (
-            <div className="absolute right-0 top-[calc(100%+0.4rem)] z-50 min-w-[200px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-md">
+            <div className="absolute right-0 top-[calc(100%+0.4rem)] z-50 min-w-[200px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-sm">
               <div className="mb-1 rounded-md bg-[rgba(255,255,255,0.05)] px-2.5 py-2">
                 <p className="m-0 text-sm font-semibold text-text-main">SteveOS</p>
                 <p className="m-0 mt-0.5 text-xs text-text-soft">Compte local</p>
@@ -216,7 +216,7 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
             <MapPin className="size-[0.95rem]" aria-hidden />
           </button>
           {isLocationMenuOpen ? (
-            <div className="absolute right-0 top-[calc(100%+0.4rem)] z-50 min-w-[154px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-md">
+            <div className="absolute right-0 top-[calc(100%+0.4rem)] z-50 min-w-[154px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-sm">
               <p className="m-0 text-xs font-semibold text-text-main">Localisation</p>
               <p className="mt-1 text-sm font-medium text-text-main">Reims</p>
               <p className="mt-0.5 text-xs text-text-soft">France</p>
@@ -238,7 +238,7 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
             <Wifi className="size-[0.95rem]" aria-hidden />
           </button>
           {isNetworkMenuOpen ? (
-            <div className="absolute right-0 top-[calc(100%+0.4rem)] z-50 min-w-[154px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-md">
+            <div className="absolute right-0 top-[calc(100%+0.4rem)] z-50 min-w-[154px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-sm">
               <p className="m-0 text-xs font-semibold text-text-main">Réseau</p>
               <p className="mt-1 text-xs text-text-soft">Accès Internet</p>
             </div>
@@ -259,7 +259,7 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
             <Contrast className="size-[0.95rem]" aria-hidden />
           </button>
           {isThemeMenuOpen ? (
-            <div className="absolute right-0 top-[calc(100%+0.4rem)] z-50 min-w-[152px] rounded-md border border-line-soft bg-bg-window p-1.5 shadow-lg backdrop-blur-md">
+            <div className="absolute right-0 top-[calc(100%+0.4rem)] z-50 min-w-[152px] rounded-md border border-line-soft bg-bg-window p-1.5 shadow-lg backdrop-blur-sm">
               {THEME_MENU_ITEMS.map(({ mode, label, Icon }) => (
                 <button
                   key={mode}

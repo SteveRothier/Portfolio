@@ -13,8 +13,8 @@
 .desktop-window {
   position: fixed;
   background: rgba(15, 25, 45, 0.5) !important;
-  backdrop-filter: blur(14px) saturate(135%);
-  -webkit-backdrop-filter: blur(14px) saturate(135%);
+  backdrop-filter: blur(8px) saturate(125%);
+  -webkit-backdrop-filter: blur(8px) saturate(125%);
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow:
     0 10px 40px rgba(0, 0, 0, 0.5),
@@ -39,8 +39,8 @@
 .desktop-window__topbar {
   background: rgba(255, 255, 255, 0.03) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 .desktop-window__content {

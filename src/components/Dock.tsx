@@ -42,11 +42,11 @@ export function Dock({ onOpenWindow, onRequestMinimizeWindow, windows }: DockPro
     <footer
       className="desktop-dock fixed bottom-0 left-1/2 z-40 inline-flex max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center justify-center gap-1.5 rounded-t-[5px] rounded-b-none border border-b-0 px-2.5 py-1"
       style={{
-        background: 'linear-gradient(180deg, rgba(20, 32, 60, 0.46), rgba(13, 24, 46, 0.42))',
-        borderColor: 'rgba(46, 70, 118, 0.34)',
-        backdropFilter: 'blur(10px) saturate(125%)',
-        WebkitBackdropFilter: 'blur(10px) saturate(125%)',
-        boxShadow: '0 4px 14px rgba(3, 10, 24, 0.22)',
+        background: 'linear-gradient(180deg, rgba(14, 66, 64, 0.5), rgba(8, 42, 46, 0.46))',
+        borderColor: 'rgba(74, 164, 148, 0.34)',
+        backdropFilter: 'blur(6px) saturate(120%)',
+        WebkitBackdropFilter: 'blur(6px) saturate(120%)',
+        boxShadow: '0 4px 14px rgba(3, 18, 22, 0.28)',
       }}
     >
       {dockApps.map((app) => {
