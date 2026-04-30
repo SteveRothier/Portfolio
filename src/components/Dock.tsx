@@ -39,7 +39,16 @@ export function Dock({ onOpenWindow, onMinimizeWindow, windows }: DockProps) {
   }
 
   return (
-    <footer className="desktop-dock fixed bottom-0 left-1/2 z-40 inline-flex max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center justify-center gap-1.5 rounded-t-[5px] rounded-b-none border border-b-0 border-[rgba(66,52,104,0.72)] bg-[linear-gradient(180deg,rgba(43,31,76,0.82),rgba(26,18,49,0.84))] px-2.5 py-1 shadow-[0_8px_24px_rgba(10,3,28,0.46),inset_0_1px_0_rgba(170,196,255,0.16)] backdrop-blur-md">
+    <footer
+      className="desktop-dock fixed bottom-0 left-1/2 z-40 inline-flex max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center justify-center gap-1.5 rounded-t-[5px] rounded-b-none border border-b-0 px-2.5 py-1"
+      style={{
+        background: 'linear-gradient(180deg, rgba(20, 32, 60, 0.46), rgba(13, 24, 46, 0.42))',
+        borderColor: 'rgba(46, 70, 118, 0.34)',
+        backdropFilter: 'blur(10px) saturate(125%)',
+        WebkitBackdropFilter: 'blur(10px) saturate(125%)',
+        boxShadow: '0 4px 14px rgba(3, 10, 24, 0.22)',
+      }}
+    >
       {dockApps.map((app) => {
         const src = DOCK_IMAGES[app.iconAsset]
         const windowState = app.windowId ? windows[app.windowId] : undefined
@@ -62,7 +71,7 @@ export function Dock({ onOpenWindow, onMinimizeWindow, windows }: DockProps) {
               <img src={src} alt="" className="size-7 object-contain select-none pointer-events-none md:size-8" draggable={false} />
             </button>
             <span
-              className={`absolute -bottom-[4px] left-1/2 -translate-x-1/2 rounded-full bg-[#ff4fd6] shadow-[0_0_8px_rgba(255,79,214,0.55)] transition-[width,opacity,transform] duration-250 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${
+              className={`absolute -bottom-[4px] left-1/2 -translate-x-1/2 rounded-full bg-[#62d8ff] shadow-[0_0_8px_rgba(98,216,255,0.5)] transition-[width,opacity,transform] duration-250 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${
                 isActive ? 'h-[2px] w-5 opacity-100' : isOpen ? 'h-[2px] w-1.5 opacity-95' : 'h-[2px] w-1.5 opacity-0'
               }`}
               aria-hidden

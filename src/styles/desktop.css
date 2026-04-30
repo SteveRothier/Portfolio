@@ -10,6 +10,47 @@
   border-radius: 0;
 }
 
+.desktop-window {
+  position: fixed;
+  background: rgba(15, 25, 45, 0.5) !important;
+  backdrop-filter: blur(14px) saturate(135%);
+  -webkit-backdrop-filter: blur(14px) saturate(135%);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  overflow: hidden;
+}
+
+.desktop-window::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
+  pointer-events: none;
+  z-index: 0;
+}
+
+.desktop-window > * {
+  position: relative;
+  z-index: 1;
+}
+
+.desktop-window__topbar {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.desktop-window__content {
+  background: transparent !important;
+}
+
+.desktop-window:hover {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
 .desktop-status__datetime,
 .desktop-icon__badge {
   font-family: var(--font-mono);

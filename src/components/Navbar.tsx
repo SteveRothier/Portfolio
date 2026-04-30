@@ -141,11 +141,13 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
 
   return (
     <header
-      className="desktop-status fixed left-0 right-0 top-0 z-10 flex h-9 items-center justify-between rounded-none px-2 text-sm text-text-main md:px-2.5 relative"
+      className="desktop-status fixed left-0 right-0 top-0 z-30 flex h-9 items-center justify-between rounded-none px-2 text-sm text-text-main md:px-2.5 relative"
       style={{
-        background: 'var(--navbar-bg)',
-        backdropFilter: 'blur(14px) saturate(135%)',
-        WebkitBackdropFilter: 'blur(14px) saturate(135%)',
+        background: 'linear-gradient(180deg, rgba(20, 32, 60, 0.46), rgba(13, 24, 46, 0.42))',
+        backdropFilter: 'blur(10px) saturate(125%)',
+        WebkitBackdropFilter: 'blur(10px) saturate(125%)',
+        borderBottom: '1px solid rgba(46, 70, 118, 0.34)',
+        boxShadow: '0 4px 14px rgba(3, 10, 24, 0.22)',
       }}
     >
       <span className="desktop-status__brand inline-flex h-full items-center truncate pr-2 text-xs font-semibold leading-none md:text-sm">

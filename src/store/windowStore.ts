@@ -5,7 +5,7 @@ import type { DesktopWindowState, WindowConfig, WindowId } from '../windows/type
 const MIN_WIDTH = 320
 const MIN_HEIGHT = 220
 const MIN_VISIBLE_WIDTH = 120
-const MIN_TOP = -44
+const MIN_TOP = 0
 const MIN_BOTTOM_VISIBLE = 120
 const EDGE_THRESHOLD = 28
 const MOBILE_LAYOUT_MAX_WIDTH = 920
@@ -272,9 +272,9 @@ export const useWindowStore = create<WindowStoreState>()(
               [id]: {
                 ...current,
                 x: 0,
-                y: MIN_TOP,
-                width: viewport.width,
-                height: viewport.height - MIN_TOP,
+                y: 0,
+                width: Math.max(viewport.width, MIN_WIDTH),
+                height: Math.max(viewport.height, MIN_HEIGHT),
                 isMaximized: true,
                 snapMode: 'top',
                 restoreBounds: {
@@ -364,9 +364,9 @@ export const useWindowStore = create<WindowStoreState>()(
                 [id]: {
                   ...current,
                   x: 0,
-                  y: MIN_TOP,
-                  width: viewport.width,
-                  height: viewport.height - MIN_TOP,
+                  y: 0,
+                  width: Math.max(viewport.width, MIN_WIDTH),
+                  height: Math.max(viewport.height, MIN_HEIGHT),
                   isMaximized: true,
                   snapMode: 'top',
                   restoreBounds: previousBounds,
