@@ -6,6 +6,7 @@ import type { DesktopWindowState } from './types'
 
 type DesktopWindowProps = {
   windowState: DesktopWindowState
+  stackIndex: number
   onFocus: () => void
   onClose: () => void
   onMinimize: () => void
@@ -32,6 +33,7 @@ type ResizeDirection =
 
 export function DesktopWindow({
   windowState,
+  stackIndex,
   onFocus,
   onClose,
   onMinimize,
@@ -364,7 +366,7 @@ export function DesktopWindow({
         height: `${windowState.height}px`,
         left: `${windowState.x}px`,
         top: `${windowState.y}px`,
-        zIndex: windowState.zIndex,
+        zIndex: stackIndex,
       }}
       onMouseDown={handleWindowMouseDown}
       aria-label={windowState.title}
