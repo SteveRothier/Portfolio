@@ -162,7 +162,7 @@ export function DesktopExperience() {
           <DesktopWindow
             key={windowState.id}
             windowState={windowState}
-            stackIndex={windowState.isMaximized ? 60 + index : 20 + index}
+            stackIndex={windowState.isMaximized ? 60 + index : 31 + index}
             onFocus={() => bringToFront(windowState.id)}
             onClose={() => closeWindow(windowState.id)}
             onMinimize={() => minimizeWindow(windowState.id)}
