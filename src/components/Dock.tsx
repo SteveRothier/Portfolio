@@ -10,7 +10,7 @@ import type { DesktopWindowState, WindowId } from '../windows/types'
 
 type DockProps = {
   onOpenWindow: (id: WindowId) => void
-  onMinimizeWindow: (id: WindowId) => void
+  onRequestMinimizeWindow: (id: WindowId) => void
   windows: Record<WindowId, DesktopWindowState>
 }
 
@@ -23,7 +23,7 @@ const DOCK_IMAGES: Record<DockIconAsset, string> = {
   trash: trashIcon,
 }
 
-export function Dock({ onOpenWindow, onMinimizeWindow, windows }: DockProps) {
+export function Dock({ onOpenWindow, onRequestMinimizeWindow, windows }: DockProps) {
   const activeWindowId =
     (Object.values(windows)
       .filter((windowState) => windowState.isOpen && !windowState.isMinimized)
@@ -32,7 +32,7 @@ export function Dock({ onOpenWindow, onMinimizeWindow, windows }: DockProps) {
   const handleDockClick = (windowId?: WindowId) => {
     if (!windowId) return
     if (activeWindowId === windowId) {
-      onMinimizeWindow(windowId)
+      onRequestMinimizeWindow(windowId)
       return
     }
     onOpenWindow(windowId)

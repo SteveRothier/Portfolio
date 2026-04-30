@@ -47,10 +47,6 @@
   background: transparent !important;
 }
 
-.desktop-window:hover {
-  border-color: rgba(255, 255, 255, 0.15) !important;
-}
-
 .desktop-status__datetime,
 .desktop-icon__badge {
   font-family: var(--font-mono);

@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import type { ReactNode, PointerEvent as ReactPointerEvent } from 'react'
+import gsap from 'gsap'
 import { WindowControls } from '../components'
 import type { DesktopWindowState } from './types'
 
@@ -8,6 +9,8 @@ type DesktopWindowProps = {
   onFocus: () => void
   onClose: () => void
   onMinimize: () => void
+  minimizeRequested?: boolean
+  onMinimizeAnimationComplete?: () => void
   onToggleMaximize: () => void
   onMove: (x: number, y: number) => void
   onDragMove: (cursorX: number, cursorY: number, width: number) => void
@@ -32,6 +35,8 @@ export function DesktopWindow({
   onFocus,
   onClose,
   onMinimize,
+  minimizeRequested = false,
+  onMinimizeAnimationComplete,
   onToggleMaximize,
   onMove,
   onDragMove,
@@ -64,6 +69,55 @@ export function DesktopWindow({
     direction: 'right' as ResizeDirection,
     resizing: false,
   })
+  const windowRef = useRef<HTMLElement | null>(null)
+  const isClosingRef = useRef(false)
+  const pendingFlipRef = useRef(false)
+  const beforeToggleRectRef = useRef<DOMRect | null>(null)
+
+  useEffect(() => {
+    if (!windowRef.current) return
+    isClosingRef.current = false
+    gsap.fromTo(
+      windowRef.current,
+      { opacity: 0, scale: 0.985, y: 8 },
+      { opacity: 1, scale: 1, y: 0, duration: 0.2, ease: 'power2.out' },
+    )
+  }, [windowState.id, windowState.isOpen])
+
+  useLayoutEffect(() => {
+    if (!pendingFlipRef.current || !windowRef.current || !beforeToggleRectRef.current) return
+
+    const nextRect = windowRef.current.getBoundingClientRect()
+    const prevRect = beforeToggleRectRef.current
+
+    const deltaX = prevRect.left - nextRect.left
+    const deltaY = prevRect.top - nextRect.top
+    const scaleX = prevRect.width / Math.max(nextRect.width, 1)
+    const scaleY = prevRect.height / Math.max(nextRect.height, 1)
+
+    gsap.fromTo(
+      windowRef.current,
+      {
+        x: deltaX,
+        y: deltaY,
+        scaleX,
+        scaleY,
+        transformOrigin: 'top left',
+      },
+      {
+        x: 0,
+        y: 0,
+        scaleX: 1,
+        scaleY: 1,
+        duration: 0.24,
+        ease: 'power2.out',
+        clearProps: 'transformOrigin',
+      },
+    )
+
+    pendingFlipRef.current = false
+    beforeToggleRectRef.current = null
+  }, [windowState.isMaximized, windowState.x, windowState.y, windowState.width, windowState.height])
 
   useEffect(() => {
     const handlePointerUp = (event: PointerEvent) => {
@@ -225,9 +279,56 @@ export function DesktopWindow({
     onFocus()
   }
 
-  const handleTitlebarDoubleClick = () => {
+  const handleToggleMaximizeWithAnimation = () => {
+    if (!windowRef.current || isClosingRef.current) {
+      onToggleMaximize()
+      return
+    }
+    beforeToggleRectRef.current = windowRef.current.getBoundingClientRect()
+    pendingFlipRef.current = true
     onToggleMaximize()
   }
+
+  const handleTitlebarDoubleClick = () => {
+    handleToggleMaximizeWithAnimation()
+  }
+
+  const handleCloseWithAnimation = () => {
+    if (!windowRef.current || isClosingRef.current) return
+    isClosingRef.current = true
+    gsap.to(windowRef.current, {
+      opacity: 0,
+      scale: 0.985,
+      y: 8,
+      duration: 0.16,
+      ease: 'power2.in',
+      onComplete: () => {
+        onClose()
+      },
+    })
+  }
+
+  const runMinimizeAnimation = (onComplete: () => void) => {
+    if (!windowRef.current || isClosingRef.current) return
+    isClosingRef.current = true
+    gsap.to(windowRef.current, {
+      opacity: 0,
+      scale: 0.99,
+      y: 10,
+      duration: 0.16,
+      ease: 'power2.in',
+      onComplete,
+    })
+  }
+
+  const handleMinimizeWithAnimation = () => {
+    runMinimizeAnimation(onMinimize)
+  }
+
+  useEffect(() => {
+    if (!minimizeRequested) return
+    runMinimizeAnimation(onMinimizeAnimationComplete ?? onMinimize)
+  }, [minimizeRequested, onMinimizeAnimationComplete, onMinimize])
 
   if (!windowState.isOpen) return null
 
@@ -235,6 +336,7 @@ export function DesktopWindow({
 
   return (
     <article
+      ref={windowRef}
       className={[
         'desktop-window fixed overflow-hidden border bg-bg-window shadow-[0_24px_54px_rgba(0,0,0,0.42),0_0_0_1px_rgba(126,160,255,0.12)] backdrop-blur-[16px]',
         windowState.isMaximized
@@ -266,9 +368,9 @@ export function DesktopWindow({
         <div className="desktop-window__controls-panel">
           <div className="desktop-window__controls-zone">
             <WindowControls
-              onMinimize={onMinimize}
-              onToggleMaximize={onToggleMaximize}
-              onClose={onClose}
+              onMinimize={handleMinimizeWithAnimation}
+              onToggleMaximize={handleToggleMaximizeWithAnimation}
+              onClose={handleCloseWithAnimation}
             />
           </div>
         </div>

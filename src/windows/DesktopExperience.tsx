@@ -12,6 +12,7 @@ import { Contact } from './Contact'
 import { Projects } from './Projects'
 import { Terminal } from './Terminal'
 import { DesktopWindow } from './DesktopWindow'
+import type { WindowId } from './types'
 import { useWindowManager } from './useWindowManager'
 
 type SnapTarget = 'top' | 'left' | 'right' | null
@@ -35,6 +36,7 @@ export function DesktopExperience() {
   } = useWindowManager()
   const [snapPreview, setSnapPreview] = useState<SnapTarget>(null)
   const [selectionRect, setSelectionRect] = useState<SelectionRect>(null)
+  const [pendingMinimizeId, setPendingMinimizeId] = useState<WindowId | null>(null)
   const resolveSnapTarget = (cursorX: number, cursorY: number): SnapTarget => {
     const edgeThreshold = 28
     if (cursorY <= edgeThreshold) return 'top'
@@ -120,6 +122,15 @@ export function DesktopExperience() {
     window.dispatchEvent(new CustomEvent(CLOSE_NAVBAR_MENUS_EVENT))
   }
 
+  const requestDockMinimize = (id: WindowId) => {
+    setPendingMinimizeId(id)
+  }
+
+  const handleMinimizeAnimationComplete = (id: WindowId) => {
+    minimizeWindow(id)
+    setPendingMinimizeId((current) => (current === id ? null : current))
+  }
+
   return (
     <section
       className="desktop-scene relative isolate min-h-dvh overflow-hidden"
@@ -154,6 +165,8 @@ export function DesktopExperience() {
             onFocus={() => bringToFront(windowState.id)}
             onClose={() => closeWindow(windowState.id)}
             onMinimize={() => minimizeWindow(windowState.id)}
+            minimizeRequested={pendingMinimizeId === windowState.id}
+            onMinimizeAnimationComplete={() => handleMinimizeAnimationComplete(windowState.id)}
             onToggleMaximize={() => toggleMaximizeWindow(windowState.id)}
             onMove={(x, y) => moveWindow(windowState.id, x, y)}
             onDragMove={(cursorX, cursorY) => setSnapPreview(resolveSnapTarget(cursorX, cursorY))}
@@ -179,7 +192,7 @@ export function DesktopExperience() {
         ))}
       </div>
 
-      <Dock onOpenWindow={openWindow} onMinimizeWindow={minimizeWindow} windows={windows} />
+      <Dock onOpenWindow={openWindow} onRequestMinimizeWindow={requestDockMinimize} windows={windows} />
     </section>
   )
 }
