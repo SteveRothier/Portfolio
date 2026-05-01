@@ -9,12 +9,15 @@ const MIN_TOP = 0
 const MIN_BOTTOM_VISIBLE = 120
 const EDGE_THRESHOLD = 28
 const MOBILE_LAYOUT_MAX_WIDTH = 920
+const CV_DEFAULT_WIDTH = 520
+const CV_DEFAULT_HEIGHT = 700
 
 const INITIAL_WINDOWS: WindowConfig[] = [
   { id: 'projects', title: 'Projets', width: 680, height: 420, x: 120, y: 110 },
   { id: 'contact', title: 'Contact', width: 420, height: 360, x: 220, y: 170 },
   { id: 'terminal', title: 'Terminal', width: 760, height: 430, x: 170, y: 130 },
   { id: 'about', title: 'À propos', width: 440, height: 320, x: 200, y: 140 },
+  { id: 'cv', title: 'CV', width: CV_DEFAULT_WIDTH, height: CV_DEFAULT_HEIGHT, x: 220, y: 56 },
 ]
 
 const WINDOW_TITLES: Record<WindowId, string> = {
@@ -22,6 +25,7 @@ const WINDOW_TITLES: Record<WindowId, string> = {
   contact: 'Contact',
   terminal: 'Terminal',
   about: 'À propos',
+  cv: 'CV',
 }
 
 const DEFAULT_WINDOW_SIZE: Record<WindowId, { width: number; height: number }> = {
@@ -29,6 +33,7 @@ const DEFAULT_WINDOW_SIZE: Record<WindowId, { width: number; height: number }> =
   contact: { width: 420, height: 360 },
   terminal: { width: 760, height: 430 },
   about: { width: 440, height: 320 },
+  cv: { width: CV_DEFAULT_WIDTH, height: CV_DEFAULT_HEIGHT },
 }
 
 type RestoreBounds = NonNullable<DesktopWindowState['restoreBounds']>
@@ -71,6 +76,7 @@ function getInitialState(): PersistedWindowStore {
       contact: toWindowState(INITIAL_WINDOWS[1], 102),
       terminal: toWindowState(INITIAL_WINDOWS[2], 103),
       about: toWindowState(INITIAL_WINDOWS[3], 104),
+      cv: toWindowState(INITIAL_WINDOWS[4], 105),
     },
   }
 }
@@ -126,6 +132,7 @@ function sanitizePersistedState(input: unknown): PersistedWindowStore {
       contact: sanitizeWindowState('contact', source.windows?.contact, initial.windows.contact.zIndex),
       terminal: sanitizeWindowState('terminal', source.windows?.terminal, initial.windows.terminal.zIndex),
       about: sanitizeWindowState('about', source.windows?.about, initial.windows.about.zIndex),
+      cv: sanitizeWindowState('cv', source.windows?.cv, initial.windows.cv.zIndex),
     },
   }
 }
@@ -217,10 +224,26 @@ export const useWindowStore = create<WindowStoreState>()(
         }))
       },
       openWindow: (id) => {
+        const viewport = getViewport()
+        const centeredCvX = Math.max(Math.floor((viewport.width - CV_DEFAULT_WIDTH) / 2), 24)
+        const centeredCvY = Math.max(Math.floor((viewport.height - CV_DEFAULT_HEIGHT) / 2), 24)
         set((state) => ({
+          // Réapplique une taille par défaut "fit CV" quand la fenêtre est réouverte depuis fermé.
+          // Si elle vient d'un état minimisé, on conserve sa taille précédente.
           windows: {
             ...state.windows,
-            [id]: { ...state.windows[id], isOpen: true, isMinimized: false },
+            [id]:
+              id === 'cv' && !state.windows[id].isMinimized
+                ? {
+                    ...state.windows[id],
+                    width: CV_DEFAULT_WIDTH,
+                    height: CV_DEFAULT_HEIGHT,
+                    x: centeredCvX,
+                    y: centeredCvY,
+                    isOpen: true,
+                    isMinimized: false,
+                  }
+                : { ...state.windows[id], isOpen: true, isMinimized: false },
           },
         }))
         get().bringToFront(id)
@@ -432,6 +455,7 @@ export const useWindowStore = create<WindowStoreState>()(
             contact: { ...state.windows.contact, title: WINDOW_TITLES.contact },
             terminal: { ...state.windows.terminal, title: WINDOW_TITLES.terminal },
             about: { ...state.windows.about, title: WINDOW_TITLES.about },
+            cv: { ...state.windows.cv, title: WINDOW_TITLES.cv },
           },
         }))
       },
@@ -442,6 +466,7 @@ export const useWindowStore = create<WindowStoreState>()(
             contact: clampWindowForViewport(state.windows.contact),
             terminal: clampWindowForViewport(state.windows.terminal),
             about: clampWindowForViewport(state.windows.about),
+            cv: clampWindowForViewport(state.windows.cv),
           },
         }))
       },
@@ -451,7 +476,7 @@ export const useWindowStore = create<WindowStoreState>()(
     }),
     {
       name: 'desktop-window-state-v1',
-      version: 2,
+      version: 3,
       partialize: (state) => ({
         windows: state.windows,
         nextZ: state.nextZ,

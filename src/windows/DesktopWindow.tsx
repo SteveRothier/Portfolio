@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import type { ReactNode, PointerEvent as ReactPointerEvent } from 'react'
 import gsap from 'gsap'
+import { Download } from 'lucide-react'
 import { WindowControls } from '../components'
 import type { DesktopWindowState } from './types'
 
@@ -12,8 +13,10 @@ type DesktopWindowProps = {
   onFocus: () => void
   onClose: () => void
   onMinimize: () => void
+  contentScrollable?: boolean
   minimizeRequested?: boolean
   onMinimizeAnimationComplete?: () => void
+  onDownload?: () => void
   onToggleMaximize: () => void
   onMove: (x: number, y: number) => void
   onDragMove: (cursorX: number, cursorY: number, width: number) => void
@@ -40,8 +43,10 @@ export function DesktopWindow({
   onFocus,
   onClose,
   onMinimize,
+  contentScrollable = true,
   minimizeRequested = false,
   onMinimizeAnimationComplete,
+  onDownload,
   onToggleMaximize,
   onMove,
   onDragMove,
@@ -378,6 +383,16 @@ export function DesktopWindow({
       aria-label={windowState.title}
     >
       <div className="desktop-window__topbar relative grid h-11 grid-cols-[1fr_auto] items-stretch border-b border-line-soft bg-[var(--window-header-bg)]">
+        {onDownload ? (
+          <button
+            type="button"
+            className="absolute left-2 top-1/2 z-[2] inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-text-soft transition-colors hover:bg-[rgba(255,255,255,0.08)] hover:text-text-main"
+            onClick={onDownload}
+            aria-label="Télécharger le PDF"
+          >
+            <Download className="size-3.5" aria-hidden />
+          </button>
+        ) : null}
         <p className="pointer-events-none absolute left-1/2 top-1/2 m-0 w-[60%] -translate-x-1/2 -translate-y-1/2 truncate px-2 text-center text-[0.85rem] text-[var(--window-header-text)]">
           {windowState.title}
         </p>
@@ -398,7 +413,9 @@ export function DesktopWindow({
           </div>
         </div>
       </div>
-      <div className="desktop-window__content h-[calc(100%-2.75rem)] overflow-auto bg-bg-window-soft">
+      <div
+        className={`desktop-window__content h-[calc(100%-2.75rem)] ${contentScrollable ? 'overflow-auto' : 'overflow-hidden'} bg-bg-window-soft`}
+      >
         {children}
       </div>
       <div

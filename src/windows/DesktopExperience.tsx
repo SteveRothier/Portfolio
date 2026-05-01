@@ -9,10 +9,12 @@ import {
 } from '../components'
 import { About } from './About'
 import { Contact } from './Contact'
+import { Cv } from './Cv'
 import { Projects } from './Projects'
 import { Terminal } from './Terminal'
 import { DesktopWindow } from './DesktopWindow'
 import { useWindowManager } from './useWindowManager'
+import resumePdf from '../assets/cv/resume.pdf'
 
 type SnapTarget = 'top' | 'left' | 'right' | null
 type SelectionRect = { x: number; y: number; width: number; height: number } | null
@@ -147,6 +149,14 @@ export function DesktopExperience() {
             onFocus={() => bringToFront(windowState.id)}
             onClose={() => closeWindow(windowState.id)}
             onMinimize={() => minimizeWindow(windowState.id)}
+            contentScrollable={windowState.id !== 'cv'}
+            onDownload={
+              windowState.id === 'cv'
+                ? () => {
+                    window.open(resumePdf, '_blank', 'noopener,noreferrer')
+                  }
+                : undefined
+            }
             onToggleMaximize={() => toggleMaximizeWindow(windowState.id)}
             onMove={(x, y) => moveWindow(windowState.id, x, y)}
             onDragMove={(cursorX, cursorY) => setSnapPreview(resolveSnapTarget(cursorX, cursorY))}
@@ -167,6 +177,8 @@ export function DesktopExperience() {
               <Terminal />
             ) : windowState.id === 'about' ? (
               <About />
+            ) : windowState.id === 'cv' ? (
+              <Cv />
             ) : (
               <Contact />
             )}

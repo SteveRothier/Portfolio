@@ -1,4 +1,4 @@
-export type WindowId = 'projects' | 'contact' | 'terminal' | 'about'
+export type WindowId = 'projects' | 'contact' | 'terminal' | 'about' | 'cv'
 export type SnapMode = 'none' | 'top' | 'left' | 'right'
 
 export type DesktopWindowState = {

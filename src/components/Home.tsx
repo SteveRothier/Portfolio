@@ -1,5 +1,5 @@
 import gsap from 'gsap'
-import { Folder, Mail } from 'lucide-react'
+import { FileText, Folder, Mail } from 'lucide-react'
 import { desktopIcons } from '../constants/desktop'
 import type { WindowId } from '../windows/types'
 
@@ -26,6 +26,8 @@ export function Home({ onOpenWindow }: HomeProps) {
           <span className="desktop-icon__glyph opacity-95" aria-hidden>
             {icon.id === 'projects' ? (
               <Folder className="size-6" style={{ color: 'var(--folder-icon-color)' }} />
+            ) : icon.id === 'cv' ? (
+              <FileText className="size-6" style={{ color: '#9cc7ff' }} />
             ) : (
               <Mail className="size-6" style={{ color: 'var(--mail-icon-color)' }} />
             )}
