@@ -1,3 +1,10 @@
+/* Sidebar : focus clavier cohérent avec le thème (complète les utilitaires du composant) */
+.desktop-sidebar__row:focus-visible,
+.desktop-sidebar button:focus-visible {
+  outline: 2px solid var(--sidebar-accent);
+  outline-offset: 2px;
+}
+
 /* Fenêtres : états + contrôles + poignées (difficile à exprimer proprement en utilitaires) */
 .desktop-window--maximized {
   border: none;

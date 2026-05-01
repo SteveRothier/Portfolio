@@ -9,7 +9,7 @@ type HomeProps = {
 
 export function Home({ onOpenWindow }: HomeProps) {
   return (
-    <div className="desktop-icons fixed right-4 top-20 z-[15] grid gap-3 max-md:left-3 max-md:right-auto max-md:top-auto max-md:bottom-24 max-md:flex max-md:flex-row max-md:flex-wrap">
+    <div className="desktop-icons fixed right-4 top-20 z-[15] grid gap-3 max-md:left-3 max-md:right-auto max-md:top-auto max-md:bottom-6 max-md:flex max-md:flex-row max-md:flex-wrap">
       {desktopIcons.map((icon) => (
         <button
           type="button"

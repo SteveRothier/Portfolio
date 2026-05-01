@@ -3,16 +3,15 @@ import type { PointerEvent as ReactPointerEvent } from 'react'
 import gsap from 'gsap'
 import {
   CLOSE_NAVBAR_MENUS_EVENT,
-  Dock,
   Home,
   Navbar,
   Welcome,
 } from '../components'
+import { About } from './About'
 import { Contact } from './Contact'
 import { Projects } from './Projects'
 import { Terminal } from './Terminal'
 import { DesktopWindow } from './DesktopWindow'
-import type { WindowId } from './types'
 import { useWindowManager } from './useWindowManager'
 
 type SnapTarget = 'top' | 'left' | 'right' | null
@@ -22,7 +21,6 @@ export function DesktopExperience() {
   const desktopRef = useRef<HTMLDivElement | null>(null)
   const selectionStartRef = useRef<{ x: number; y: number; pointerId: number } | null>(null)
   const {
-    windows,
     orderedWindows,
     openWindow,
     closeWindow,
@@ -36,7 +34,6 @@ export function DesktopExperience() {
   } = useWindowManager()
   const [snapPreview, setSnapPreview] = useState<SnapTarget>(null)
   const [selectionRect, setSelectionRect] = useState<SelectionRect>(null)
-  const [pendingMinimizeId, setPendingMinimizeId] = useState<WindowId | null>(null)
   const resolveSnapTarget = (cursorX: number, cursorY: number): SnapTarget => {
     const edgeThreshold = 28
     if (cursorY <= edgeThreshold) return 'top'
@@ -56,16 +53,9 @@ export function DesktopExperience() {
         ease: 'power2.out',
       })
       gsap.from('.desktop-status', {
-        y: -14,
+        x: -14,
         opacity: 0,
         duration: 0.35,
-        ease: 'power2.out',
-      })
-      gsap.from('.desktop-dock', {
-        y: 20,
-        opacity: 0,
-        duration: 0.42,
-        delay: 0.1,
         ease: 'power2.out',
       })
     }, desktopRef)
@@ -102,7 +92,7 @@ export function DesktopExperience() {
     const target = event.target as HTMLElement
     if (
       target.closest(
-        '.desktop-window, .desktop-icon, .desktop-dock, .desktop-status, .desktop-window__titlebar',
+        '.desktop-window, .desktop-icon, .desktop-status, .desktop-window__titlebar',
       )
     ) {
       return
@@ -120,15 +110,6 @@ export function DesktopExperience() {
     if (!(target instanceof Element)) return
     if (target.closest('.desktop-status')) return
     window.dispatchEvent(new CustomEvent(CLOSE_NAVBAR_MENUS_EVENT))
-  }
-
-  const requestDockMinimize = (id: WindowId) => {
-    setPendingMinimizeId(id)
-  }
-
-  const handleMinimizeAnimationComplete = (id: WindowId) => {
-    minimizeWindow(id)
-    setPendingMinimizeId((current) => (current === id ? null : current))
   }
 
   return (
@@ -162,12 +143,10 @@ export function DesktopExperience() {
           <DesktopWindow
             key={windowState.id}
             windowState={windowState}
-            stackIndex={windowState.isMaximized ? 60 + index : 31 + index}
+            stackIndex={windowState.snapMode !== 'none' ? 60 + index : 31 + index}
             onFocus={() => bringToFront(windowState.id)}
             onClose={() => closeWindow(windowState.id)}
             onMinimize={() => minimizeWindow(windowState.id)}
-            minimizeRequested={pendingMinimizeId === windowState.id}
-            onMinimizeAnimationComplete={() => handleMinimizeAnimationComplete(windowState.id)}
             onToggleMaximize={() => toggleMaximizeWindow(windowState.id)}
             onMove={(x, y) => moveWindow(windowState.id, x, y)}
             onDragMove={(cursorX, cursorY) => setSnapPreview(resolveSnapTarget(cursorX, cursorY))}
@@ -186,14 +165,14 @@ export function DesktopExperience() {
               <Projects />
             ) : windowState.id === 'terminal' ? (
               <Terminal />
+            ) : windowState.id === 'about' ? (
+              <About />
             ) : (
               <Contact />
             )}
           </DesktopWindow>
         ))}
       </div>
-
-      <Dock onOpenWindow={openWindow} onRequestMinimizeWindow={requestDockMinimize} windows={windows} />
     </section>
   )
 }

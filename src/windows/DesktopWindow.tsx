@@ -7,6 +7,8 @@ import type { DesktopWindowState } from './types'
 type DesktopWindowProps = {
   windowState: DesktopWindowState
   stackIndex: number
+  /** Décale les fenêtres flottantes (et snap gauche) pour ne pas passer sous la sidebar. */
+  sceneGutterX?: number
   onFocus: () => void
   onClose: () => void
   onMinimize: () => void
@@ -34,6 +36,7 @@ type ResizeDirection =
 export function DesktopWindow({
   windowState,
   stackIndex,
+  sceneGutterX = 0,
   onFocus,
   onClose,
   onMinimize,
@@ -349,6 +352,9 @@ export function DesktopWindow({
   if (!windowState.isOpen) return null
 
   const edgeSnapped = windowState.snapMode === 'left' || windowState.snapMode === 'right'
+  const useSceneGutter =
+    !windowState.isMaximized && windowState.snapMode !== 'top' && windowState.snapMode !== 'right'
+  const leftPx = windowState.x + (useSceneGutter ? sceneGutterX : 0)
 
   return (
     <article
@@ -364,7 +370,7 @@ export function DesktopWindow({
       style={{
         width: `${windowState.width}px`,
         height: `${windowState.height}px`,
-        left: `${windowState.x}px`,
+        left: `${leftPx}px`,
         top: `${windowState.y}px`,
         zIndex: stackIndex,
       }}

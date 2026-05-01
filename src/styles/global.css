@@ -21,6 +21,16 @@
   --folder-icon-color: #7bb2ff;
   --mail-icon-color: #9bc4ff;
 
+  /* Panneau glass (navbar + sidebar) */
+  --panel-glass-gradient: linear-gradient(180deg, rgba(14, 66, 64, 0.5), rgba(8, 42, 46, 0.46));
+  --panel-glass-border: rgba(74, 164, 148, 0.34);
+  --panel-glass-shadow: 4px 0 18px rgba(3, 18, 22, 0.22);
+  --panel-glass-shadow-top: 0 4px 14px rgba(3, 18, 22, 0.28);
+  --sidebar-accent: #5eead4;
+  --sidebar-row-hover: rgba(94, 234, 212, 0.08);
+  --sidebar-row-active-bg: rgba(94, 234, 212, 0.1);
+  --sidebar-row-active-border: rgba(94, 234, 212, 0.35);
+
   /* Rayons (utilisés par Tailwind @theme) */
   --radius-xl: 20px;
   --radius-lg: 14px;
@@ -42,6 +52,14 @@
   --navbar-bg: #9baeff99;
   --window-header-bg: #dfe8f7e3;
   --window-header-text: #111111;
+  --panel-glass-gradient: linear-gradient(180deg, rgba(200, 230, 220, 0.72), rgba(230, 240, 236, 0.65));
+  --panel-glass-border: rgba(60, 120, 100, 0.28);
+  --panel-glass-shadow: 4px 0 14px rgba(20, 40, 35, 0.12);
+  --panel-glass-shadow-top: 0 4px 12px rgba(20, 40, 35, 0.1);
+  --sidebar-accent: #0d9488;
+  --sidebar-row-hover: rgba(13, 148, 136, 0.1);
+  --sidebar-row-active-bg: rgba(13, 148, 136, 0.12);
+  --sidebar-row-active-border: rgba(13, 148, 136, 0.35);
 }
 
 *,

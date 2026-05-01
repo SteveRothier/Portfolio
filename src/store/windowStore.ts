@@ -14,18 +14,21 @@ const INITIAL_WINDOWS: WindowConfig[] = [
   { id: 'projects', title: 'Projets', width: 680, height: 420, x: 120, y: 110 },
   { id: 'contact', title: 'Contact', width: 420, height: 360, x: 220, y: 170 },
   { id: 'terminal', title: 'Terminal', width: 760, height: 430, x: 170, y: 130 },
+  { id: 'about', title: 'À propos', width: 440, height: 320, x: 200, y: 140 },
 ]
 
 const WINDOW_TITLES: Record<WindowId, string> = {
   projects: 'Projets',
   contact: 'Contact',
   terminal: 'Terminal',
+  about: 'À propos',
 }
 
 const DEFAULT_WINDOW_SIZE: Record<WindowId, { width: number; height: number }> = {
   projects: { width: 680, height: 420 },
   contact: { width: 420, height: 360 },
   terminal: { width: 760, height: 430 },
+  about: { width: 440, height: 320 },
 }
 
 type RestoreBounds = NonNullable<DesktopWindowState['restoreBounds']>
@@ -67,6 +70,7 @@ function getInitialState(): PersistedWindowStore {
       projects: toWindowState(INITIAL_WINDOWS[0], 101),
       contact: toWindowState(INITIAL_WINDOWS[1], 102),
       terminal: toWindowState(INITIAL_WINDOWS[2], 103),
+      about: toWindowState(INITIAL_WINDOWS[3], 104),
     },
   }
 }
@@ -121,6 +125,7 @@ function sanitizePersistedState(input: unknown): PersistedWindowStore {
       projects: sanitizeWindowState('projects', source.windows?.projects, initial.windows.projects.zIndex),
       contact: sanitizeWindowState('contact', source.windows?.contact, initial.windows.contact.zIndex),
       terminal: sanitizeWindowState('terminal', source.windows?.terminal, initial.windows.terminal.zIndex),
+      about: sanitizeWindowState('about', source.windows?.about, initial.windows.about.zIndex),
     },
   }
 }
@@ -426,6 +431,7 @@ export const useWindowStore = create<WindowStoreState>()(
             projects: { ...state.windows.projects, title: WINDOW_TITLES.projects },
             contact: { ...state.windows.contact, title: WINDOW_TITLES.contact },
             terminal: { ...state.windows.terminal, title: WINDOW_TITLES.terminal },
+            about: { ...state.windows.about, title: WINDOW_TITLES.about },
           },
         }))
       },
@@ -435,6 +441,7 @@ export const useWindowStore = create<WindowStoreState>()(
             projects: clampWindowForViewport(state.windows.projects),
             contact: clampWindowForViewport(state.windows.contact),
             terminal: clampWindowForViewport(state.windows.terminal),
+            about: clampWindowForViewport(state.windows.about),
           },
         }))
       },
@@ -444,15 +451,12 @@ export const useWindowStore = create<WindowStoreState>()(
     }),
     {
       name: 'desktop-window-state-v1',
-      version: 1,
+      version: 2,
       partialize: (state) => ({
         windows: state.windows,
         nextZ: state.nextZ,
       }),
-      migrate: (persistedState, version) => {
-        if (version !== 1) return getInitialState()
-        return sanitizePersistedState(persistedState)
-      },
+      migrate: (persistedState) => sanitizePersistedState(persistedState),
       merge: (persistedState, currentState) => {
         const safe = sanitizePersistedState(persistedState)
         return {
