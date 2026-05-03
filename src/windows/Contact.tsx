@@ -1,6 +1,6 @@
 import { GitBranch, Mail, UserRound } from 'lucide-react'
 
-const links = [
+const contactLinks = [
   {
     label: 'GitHub',
     href: 'https://github.com/SteveRothier',
@@ -29,7 +29,7 @@ export function Contact() {
       </div>
 
       <ul className="m-0 mt-auto grid list-none grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-3 p-0">
-        {links.map(({ label, href, Icon, style }) => (
+        {contactLinks.map(({ label, href, Icon, style }) => (
           <li key={label}>
             <a
               className={`group grid gap-6 rounded-xl border px-4 py-3 text-[#f7f7f9] no-underline transition-transform duration-150 hover:-translate-y-0.5 ${style}`}

@@ -1,0 +1,457 @@
+:root {
+  --font-ui: "Tahoma", "Verdana", "Segoe UI", "MS Sans Serif", sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* Couleurs */
+  --bg-main: #070d1d;
+  --bg-secondary: #0f1d3a;
+  --bg-window: #080e1cd1;
+  --bg-window-soft: #0f182bdb;
+  --line-soft: #8daeff42;
+  --line-strong: #9bbdff73;
+  --text-main: #ebf1ff;
+  --text-soft: #b8c7e8;
+  --glow: #5f9bff57;
+  --selection-border: #38bdf8;
+  --selection-fill: #38bdf838;
+  --navbar-bg: linear-gradient(100deg, rgba(20, 24, 44, 0.86), rgba(32, 46, 94, 0.78));
+  --window-header-bg: #0a1426bf;
+  --window-header-text: #b8c7e8;
+  --desktop-icon-bg: #050b226b;
+  --folder-icon-color: #7bb2ff;
+  --mail-icon-color: #9bc4ff;
+
+  /* Rayons (utilisés par Tailwind @theme) */
+  --radius-xl: 20px;
+  --radius-lg: 14px;
+  --radius-md: 10px;
+}
+
+:root[data-theme='light'] {
+  --bg-main: #e8eefc;
+  --bg-secondary: #dfe7fa;
+  --bg-window: #f3f7ffdb;
+  --bg-window-soft: #ffffffde;
+  --line-soft: #5f78b240;
+  --line-strong: #4d69ad73;
+  --text-main: #111111;
+  --text-soft: #111111;
+  --glow: #5f9bff66;
+  --selection-border: #1d6eff;
+  --selection-fill: #1d6eff33;
+  --navbar-bg: #9baeff99;
+  --window-header-bg: #dfe8f7e3;
+  --window-header-text: #111111;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-ui);
+  color: var(--text-main);
+  background: var(--bg-main);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+/* Fenêtres : états + contrôles + poignées (difficile à exprimer proprement en utilitaires) */
+.desktop-window--maximized {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  z-index: 999 !important;
+}
+
+.desktop-window {
+  position: fixed;
+  font-family: var(--font-ui);
+  background: #f5f6f8 !important;
+  border: 1px solid #2157a7 !important;
+  box-shadow:
+    0 14px 34px rgba(11, 24, 48, 0.42),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55) !important;
+  overflow: hidden;
+}
+
+.desktop-window--active {
+  border-color: #2458a6 !important;
+}
+
+.desktop-window--inactive {
+  border-color: #7b97ba !important;
+}
+
+.desktop-window::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  box-shadow: inset 0 0 0 1px rgba(20, 64, 133, 0.3);
+}
+
+.desktop-window::before {
+  display: none;
+}
+
+.desktop-window > * {
+  position: relative;
+  z-index: 1;
+}
+
+.desktop-window__topbar {
+  background: linear-gradient(180deg, #0a6ad8 0%, #2a85e8 20%, #0f62c6 52%, #0c55ac 100%) !important;
+  border-bottom: 1px solid #0b4088 !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.xp-start-button {
+  padding: 0 14px 0 5px;
+  border: 0 !important;
+  outline: none;
+  /*
+   * Courbe droite : rayons fixes (taskbar h-12 = 48px â†’ ~20px â‰ˆ profil Start XP).
+   */
+  border-radius: 0 20px 20px 0;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  /* Dégradé « gel » XP : plus sombre en haut/bas, gain doux au centre; pas de halo blanc en bordure. */
+  background: linear-gradient(
+    180deg,
+    #6eae38 0%,
+    #9bd965 18%,
+    #63ad35 52%,
+    #458f26 82%,
+    #2f6e18 100%
+  );
+  box-shadow:
+    0 2px 4px rgba(5, 38, 9, 0.42),
+    inset 0 1px 0 rgba(124, 206, 72, 0.38),
+    inset 0 -1px 0 rgba(18, 72, 14, 0.65);
+  text-shadow: 0 1px 1px rgba(14, 52, 8, 0.92);
+}
+
+.xp-start-button:hover {
+  filter: brightness(1.04);
+}
+
+.xp-start-button--pressed {
+  transform: translateY(1px) translateZ(0);
+  filter: saturate(0.96);
+  box-shadow:
+    0 1px 2px rgba(6, 39, 11, 0.48),
+    inset 0 2px 5px rgba(12, 56, 14, 0.55);
+}
+
+.xp-start-button:focus-visible {
+  outline: 2px solid rgba(210, 240, 255, 0.55);
+  outline-offset: 2px;
+}
+
+.xp-start-button__logo-wrap {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.xp-start-button__logo-image {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  filter: drop-shadow(0 0.5px 0.6px rgba(0, 0, 0, 0.45));
+}
+
+.xp-start-button__label {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+/* Icônes barre des tâches : pas de fond, seulement le pictogramme (style XP) */
+.xp-taskbar-app {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.xp-taskbar-app:hover {
+  filter: brightness(1.12);
+}
+
+.xp-taskbar-app--open {
+  filter: brightness(1.08);
+}
+
+.xp-taskbar-app--active {
+  filter: brightness(1.15) drop-shadow(0 0 4px rgba(255, 255, 255, 0.35));
+}
+
+.xp-taskbar-app__icon {
+  width: 34px;
+  height: 34px;
+}
+
+/* Raccourcis bureau type Windows XP (icône + texte en dessous, sans cadre) */
+.desktop-xp-shortcut {
+  display: flex;
+  width: 88px;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  padding: 4px 6px;
+  text-align: center;
+  color: #fff;
+  cursor: pointer;
+  text-shadow:
+    1px 1px 0 rgba(0, 0, 0, 0.75),
+    0 0 6px rgba(0, 0, 0, 0.45);
+}
+
+.desktop-xp-shortcut:hover {
+  filter: brightness(1.05);
+}
+
+.desktop-xp-shortcut:focus-visible {
+  outline: 1px dotted #fff;
+  outline-offset: 2px;
+}
+
+.desktop-xp-shortcut__glyph img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  filter: drop-shadow(1px 2px 2px rgba(0, 0, 0, 0.5));
+}
+
+.desktop-xp-shortcut__label {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  line-height: 1.15;
+  max-width: 9rem;
+  word-wrap: break-word;
+}
+
+.desktop-xp-shortcuts-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.desktop-window--inactive .desktop-window__topbar {
+  background: linear-gradient(180deg, #9db3ce 0%, #8ea6c2 52%, #7f98b6 100%) !important;
+  border-bottom-color: #657f9f !important;
+}
+
+.desktop-window__content {
+  background: linear-gradient(180deg, #f6f2e7, #ece9d8 42px, #ece9d8) !important;
+}
+
+.desktop-window__title {
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-shadow: 0 1px 1px rgba(0, 16, 42, 0.9);
+}
+
+.desktop-window--inactive .desktop-window__title {
+  color: #f3f7ff;
+  text-shadow: 0 1px 1px rgba(42, 57, 79, 0.65);
+}
+
+.desktop-window__download {
+  color: #ecf4ff;
+}
+
+.desktop-window__download:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.desktop-status__datetime,
+.desktop-icon__badge {
+  font-family: var(--font-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+.desktop-status {
+  font-family: var(--font-ui);
+  font-size: 11px;
+}
+
+.desktop-window__titlebar,
+.resize-handle {
+  user-select: none;
+}
+
+.desktop-window__titlebar:active {
+  cursor: grabbing;
+}
+
+.desktop-window__controls-panel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 0.18rem;
+  cursor: default;
+}
+
+.desktop-window__controls-zone {
+  min-width: 78px;
+  height: 100%;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  cursor: default;
+}
+
+.control {
+  width: 24px;
+  height: 18px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 700;
+  color: #f7fbff;
+  text-shadow: 0 1px 0 rgba(8, 20, 42, 0.7);
+  transition: filter 0.14s ease;
+}
+
+.control--close {
+  background: linear-gradient(180deg, #f0877f, #d75e56);
+  border-color: rgba(255, 212, 212, 0.8);
+}
+
+.control--min {
+  background: linear-gradient(180deg, #73b5ff, #4d8fe2);
+  border-color: rgba(217, 234, 255, 0.82);
+}
+
+.control--max {
+  background: linear-gradient(180deg, #73b5ff, #4d8fe2);
+  border-color: rgba(217, 234, 255, 0.82);
+}
+
+.desktop-window--inactive .control {
+  filter: saturate(0.55) brightness(0.95);
+}
+
+.control span {
+  transform: translateY(-1px);
+}
+
+.control:focus-visible {
+  outline: 1px solid rgba(225, 236, 255, 0.7);
+  outline-offset: 1px;
+}
+
+.control:hover {
+  filter: brightness(1.08);
+}
+
+.resize-handle {
+  position: absolute;
+  z-index: 5;
+}
+
+.resize-handle--top {
+  top: 0;
+  left: 10px;
+  right: 10px;
+  height: 6px;
+  cursor: ns-resize;
+}
+
+.resize-handle--right {
+  top: 10px;
+  right: 0;
+  bottom: 10px;
+  width: 6px;
+  cursor: ew-resize;
+}
+
+.resize-handle--bottom {
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  height: 6px;
+  cursor: ns-resize;
+}
+
+.resize-handle--left {
+  top: 10px;
+  left: 0;
+  bottom: 10px;
+  width: 6px;
+  cursor: ew-resize;
+}
+
+.resize-handle--top-left {
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  cursor: nwse-resize;
+}
+
+.resize-handle--top-right {
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  cursor: nesw-resize;
+}
+
+.resize-handle--bottom-left {
+  bottom: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  cursor: nesw-resize;
+}
+
+.resize-handle--bottom-right {
+  right: 0;
+  bottom: 0;
+  width: 10px;
+  height: 10px;
+  cursor: nwse-resize;
+}

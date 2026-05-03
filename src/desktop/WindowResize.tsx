@@ -1,14 +1,19 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
-import type { ReactNode, PointerEvent as ReactPointerEvent } from 'react'
+import type {
+  MouseEvent as ReactMouseEvent,
+  PointerEvent as ReactPointerEvent,
+  ReactNode,
+} from 'react'
 import gsap from 'gsap'
 import { Download } from 'lucide-react'
-import { WindowControls } from '../components'
-import type { DesktopWindowState } from './types'
+import { WindowControls } from '../components/WindowControls'
+import type { DesktopWindowState } from '../windows/types'
 
-type DesktopWindowProps = {
+type WindowResizeProps = {
   windowState: DesktopWindowState
+  isActive: boolean
   stackIndex: number
-  /** Décale les fenêtres flottantes (et snap gauche) pour ne pas passer sous la sidebar. */
+  /** Décale les fenêtres flottantes pour ne pas passer sous la barre des tâches. */
   sceneGutterX?: number
   onFocus: () => void
   onClose: () => void
@@ -19,10 +24,8 @@ type DesktopWindowProps = {
   onDownload?: () => void
   onToggleMaximize: () => void
   onMove: (x: number, y: number) => void
-  onDragMove: (cursorX: number, cursorY: number, width: number) => void
   onResize: (x: number, y: number, width: number, height: number) => void
   onRestoreFromSnap: (x: number, y: number, width: number, height: number) => void
-  onDragEnd: (cursorX: number, cursorY: number) => void
   children: ReactNode
 }
 
@@ -36,8 +39,9 @@ type ResizeDirection =
   | 'bottom-left'
   | 'bottom-right'
 
-export function DesktopWindow({
+export function WindowResize({
   windowState,
+  isActive,
   stackIndex,
   sceneGutterX = 0,
   onFocus,
@@ -49,12 +53,10 @@ export function DesktopWindow({
   onDownload,
   onToggleMaximize,
   onMove,
-  onDragMove,
   onResize,
   onRestoreFromSnap,
-  onDragEnd,
   children,
-}: DesktopWindowProps) {
+}: WindowResizeProps) {
   const minWidth = 320
   const minHeight = 220
   const minTop = 0
@@ -134,13 +136,11 @@ export function DesktopWindow({
   }, [windowState.isMaximized, windowState.x, windowState.y, windowState.width, windowState.height])
 
   useEffect(() => {
-    const handlePointerUp = (event: PointerEvent) => {
-      const wasDragging = dragRef.current.dragging
+    const handlePointerUp = () => {
       dragRef.current.dragging = false
       dragRef.current.pointerId = -1
       resizeRef.current.resizing = false
       resizeRef.current.pointerId = -1
-      if (wasDragging) onDragEnd(event.clientX, event.clientY)
     }
 
     const handlePointerMove = (event: PointerEvent) => {
@@ -206,7 +206,6 @@ export function DesktopWindow({
       const y = Math.min(Math.max(dragRef.current.originY + deltaY, minTop), maxY)
 
       onMove(x, y)
-      onDragMove(event.clientX, event.clientY, windowState.width)
     }
 
     window.addEventListener('pointerup', handlePointerUp)
@@ -215,18 +214,7 @@ export function DesktopWindow({
       window.removeEventListener('pointerup', handlePointerUp)
       window.removeEventListener('pointermove', handlePointerMove)
     }
-  }, [
-    minHeight,
-    minTop,
-    minWidth,
-    onDragEnd,
-    onDragMove,
-    onMove,
-    onResize,
-    viewportPadding,
-    windowState.height,
-    windowState.width,
-  ])
+  }, [minHeight, minTop, minWidth, onMove, onResize, viewportPadding, windowState.height, windowState.width])
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (resizeRef.current.resizing) return
@@ -287,7 +275,7 @@ export function DesktopWindow({
       onFocus()
     }
 
-  const handleWindowMouseDown = (event: React.MouseEvent<HTMLElement>) => {
+  const handleWindowMouseDown = (event: ReactMouseEvent<HTMLElement>) => {
     const target = event.target as HTMLElement
     if (target.closest('.control')) return
     onFocus()
@@ -356,21 +344,18 @@ export function DesktopWindow({
 
   if (!windowState.isOpen) return null
 
-  const edgeSnapped = windowState.snapMode === 'left' || windowState.snapMode === 'right'
-  const useSceneGutter =
-    !windowState.isMaximized && windowState.snapMode !== 'top' && windowState.snapMode !== 'right'
+  const useSceneGutter = !windowState.isMaximized
   const leftPx = windowState.x + (useSceneGutter ? sceneGutterX : 0)
 
   return (
     <article
       ref={windowRef}
       className={[
-        'desktop-window fixed overflow-hidden border bg-bg-window shadow-[0_24px_54px_rgba(0,0,0,0.42),0_0_0_1px_rgba(126,160,255,0.12)] backdrop-blur-[16px]',
+        'desktop-window fixed overflow-hidden border shadow-[0_18px_38px_rgba(7,21,46,0.45)]',
+        isActive ? 'desktop-window--active' : 'desktop-window--inactive',
         windowState.isMaximized
           ? 'desktop-window--maximized rounded-none border-0 shadow-none'
-          : edgeSnapped
-            ? 'desktop-window--edge-snapped rounded-none border-line-strong'
-            : 'rounded-lg border-line-strong',
+          : 'rounded-[7px] border-line-strong',
       ].join(' ')}
       style={{
         width: `${windowState.width}px`,
@@ -382,18 +367,18 @@ export function DesktopWindow({
       onMouseDown={handleWindowMouseDown}
       aria-label={windowState.title}
     >
-      <div className="desktop-window__topbar relative grid h-11 grid-cols-[1fr_auto] items-stretch border-b border-line-soft bg-[var(--window-header-bg)]">
+      <div className="desktop-window__topbar relative grid h-8 grid-cols-[1fr_auto] items-stretch border-b border-line-soft">
         {onDownload ? (
           <button
             type="button"
-            className="absolute left-2 top-1/2 z-[2] inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-text-soft transition-colors hover:bg-[rgba(255,255,255,0.08)] hover:text-text-main"
+            className="desktop-window__download absolute left-1.5 top-1/2 z-[2] inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-sm transition-colors"
             onClick={onDownload}
             aria-label="Télécharger le PDF"
           >
             <Download className="size-3.5" aria-hidden />
           </button>
         ) : null}
-        <p className="pointer-events-none absolute left-1/2 top-1/2 m-0 w-[60%] -translate-x-1/2 -translate-y-1/2 truncate px-2 text-center text-[0.85rem] text-[var(--window-header-text)]">
+        <p className="desktop-window__title pointer-events-none absolute left-1/2 top-1/2 m-0 w-[65%] -translate-x-1/2 -translate-y-1/2 truncate px-2 text-center text-[0.82rem]">
           {windowState.title}
         </p>
         <header

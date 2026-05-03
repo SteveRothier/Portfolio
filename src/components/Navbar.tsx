@@ -1,40 +1,16 @@
-import {
-  CircleUserRound,
-  Contrast,
-  FileText,
-  LogOut,
-  Mail,
-  MapPin,
-  MonitorCog,
-  Moon,
-  Sun,
-  User,
-  Wifi,
-} from 'lucide-react'
-import { useEffect, useState } from 'react'
-import browserIcon from '../assets/icons/browser.ico'
-import contactIcon from '../assets/icons/contact.ico'
-import folderIcon from '../assets/icons/folder.ico'
-import githubIcon from '../assets/icons/github.ico'
-import terminalIcon from '../assets/icons/terminal.ico'
-import type { WindowId } from '../windows/types'
+import { MapPin, Wifi } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import browserIcon from '../assets/icons/Internet Explorer 6.png'
+import folderIcon from '../assets/icons/Folder Closed.png'
+import msnIcon from '../assets/icons/MSN.png'
+import terminalIcon from '../assets/icons/Command Prompt.png'
+import xpLogo from '../assets/xplogo.png'
+import type { DesktopWindowState, WindowId } from '../windows/types'
 
-const THEME_MENU_ITEMS = [
-  { mode: 'light' as const, label: 'Light', Icon: Sun },
-  { mode: 'dark' as const, label: 'Dark', Icon: Moon },
-  { mode: 'system' as const, label: 'Système', Icon: MonitorCog },
-]
-const PROFILE_MENU_ITEMS = [
-  { id: 'profile', label: 'Profil', Icon: User },
-  { id: 'cv', label: 'CV', Icon: FileText },
-  { id: 'contact', label: 'Contact', Icon: Mail },
-] as const
-type ProfileMenuItemId = (typeof PROFILE_MENU_ITEMS)[number]['id']
+const THEME_STORAGE_KEY = 'desktop-theme-mode'
 
 type ThemeMode = 'system' | 'light' | 'dark'
 type ResolvedTheme = 'light' | 'dark'
-
-const THEME_STORAGE_KEY = 'desktop-theme-mode'
 
 function getSystemTheme(): ResolvedTheme {
   if (typeof window === 'undefined') return 'dark'
@@ -48,21 +24,53 @@ function getStoredThemeMode(): ThemeMode {
   return 'system'
 }
 
+function applyDocumentTheme() {
+  const mode = getStoredThemeMode()
+  const resolved: ResolvedTheme = mode === 'system' ? getSystemTheme() : mode
+  document.documentElement.dataset.theme = resolved
+  document.documentElement.style.colorScheme = resolved
+}
+
 type NavbarProps = {
   onOpenWindow: (id: WindowId) => void
+  onRequestMinimizeWindow: (id: WindowId) => void
+  windows: Record<WindowId, DesktopWindowState>
 }
 
 /** Émis par la scène desktop quand un clic n’a pas lieu dans la barre d’état (fermeture des menus). */
 export const CLOSE_NAVBAR_MENUS_EVENT = 'steveos-close-navbar-menus'
 
-export function Navbar({ onOpenWindow }: NavbarProps) {
+type TaskbarApp = {
+  id: string
+  label: string
+  icon: string
+  windowId?: WindowId
+  href?: string
+}
+
+const TASKBAR_APPS: TaskbarApp[] = [
+  { id: 'projects', label: 'Projets', icon: folderIcon, windowId: 'projects' },
+  { id: 'contact', label: 'Contact', icon: msnIcon, windowId: 'contact' },
+  { id: 'terminal', label: 'Terminal', icon: terminalIcon, windowId: 'terminal' },
+  { id: 'about', label: 'À propos', icon: browserIcon, windowId: 'about' },
+]
+
+export function Navbar({ onOpenWindow, onRequestMinimizeWindow, windows }: NavbarProps) {
   const [now, setNow] = useState(() => new Date())
-  const [themeMode, setThemeMode] = useState<ThemeMode>(() => getStoredThemeMode())
-  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() => getSystemTheme())
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
+  const [isStartMenuOpen, setIsStartMenuOpen] = useState(false)
   const [isLocationMenuOpen, setIsLocationMenuOpen] = useState(false)
   const [isNetworkMenuOpen, setIsNetworkMenuOpen] = useState(false)
-  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false)
+
+  useEffect(() => {
+    applyDocumentTheme()
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const onSystemThemeChange = () => {
+      if (getStoredThemeMode() === 'system') applyDocumentTheme()
+    }
+    mediaQuery.addEventListener('change', onSystemThemeChange)
+    return () => mediaQuery.removeEventListener('change', onSystemThemeChange)
+  }, [])
+
   useEffect(() => {
     const timer = window.setInterval(() => {
       setNow(new Date())
@@ -71,31 +79,10 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
   }, [])
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    const handleSystemThemeChange = (event: MediaQueryListEvent) => {
-      setSystemTheme(event.matches ? 'dark' : 'light')
-    }
-    mediaQuery.addEventListener('change', handleSystemThemeChange)
-    return () => mediaQuery.removeEventListener('change', handleSystemThemeChange)
-  }, [])
-
-  useEffect(() => {
-    window.localStorage.setItem(THEME_STORAGE_KEY, themeMode)
-  }, [themeMode])
-
-  const resolvedTheme: ResolvedTheme = themeMode === 'system' ? systemTheme : themeMode
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = resolvedTheme
-    document.documentElement.style.colorScheme = resolvedTheme
-  }, [resolvedTheme])
-
-  useEffect(() => {
     const closeAllMenus = () => {
-      setIsProfileMenuOpen(false)
+      setIsStartMenuOpen(false)
       setIsLocationMenuOpen(false)
       setIsNetworkMenuOpen(false)
-      setIsThemeMenuOpen(false)
     }
 
     const handleCloseRequest = () => {
@@ -115,186 +102,145 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
     }
   }, [])
 
-  const handleProfileAction = (id: ProfileMenuItemId) => {
-    if (id === 'contact') {
-      onOpenWindow('contact')
-    }
-
-    // Fenetre CV a venir.
-    setIsProfileMenuOpen(false)
-  }
-
-  const timeParts = new Intl.DateTimeFormat('fr-FR', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).formatToParts(now)
-  const hourText = timeParts.find((part) => part.type === 'hour')?.value ?? '00'
-  const minuteText = timeParts.find((part) => part.type === 'minute')?.value ?? '00'
   const iconButtonClass =
-    'inline-flex h-7 w-7 items-center justify-center rounded-md text-text-main hover:bg-[var(--sidebar-row-hover)]'
-  const closeAllQuickPanels = () => {
-    setIsProfileMenuOpen(false)
+    'inline-flex h-8 w-8 items-center justify-center rounded-[3px] text-white hover:bg-[rgba(255,255,255,0.18)]'
+  const closeTrayMenus = () => {
     setIsLocationMenuOpen(false)
     setIsNetworkMenuOpen(false)
-    setIsThemeMenuOpen(false)
   }
+  const activeWindowId =
+    (Object.values(windows)
+      .filter((windowState) => windowState.isOpen && !windowState.isMinimized)
+      .sort((a, b) => b.zIndex - a.zIndex)[0]?.id as WindowId | undefined) ?? undefined
+
+  const handleTaskbarClick = (app: TaskbarApp) => {
+    if (app.windowId) {
+      if (activeWindowId === app.windowId) {
+        onRequestMinimizeWindow(app.windowId)
+        return
+      }
+      onOpenWindow(app.windowId)
+      return
+    }
+    if (app.href) {
+      window.open(app.href, '_blank', 'noopener,noreferrer')
+    }
+  }
+
+  const formattedTime = useMemo(
+    () =>
+      new Intl.DateTimeFormat('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      }).format(now),
+    [now],
+  )
 
   return (
     <header
-      className="desktop-status fixed bottom-0 left-0 top-0 z-30 flex w-11 flex-col items-center rounded-none px-1.5 py-2 text-sm text-text-main"
+      className="desktop-status fixed bottom-0 left-0 right-0 z-30 flex h-12 items-stretch gap-2 pr-0 text-sm text-text-main"
       style={{
-        background: 'var(--panel-glass-gradient)',
-        backdropFilter: 'blur(6px) saturate(120%)',
-        WebkitBackdropFilter: 'blur(6px) saturate(120%)',
-        borderRight: '1px solid var(--panel-glass-border)',
-        boxShadow: 'var(--panel-glass-shadow)',
+        background:
+          'linear-gradient(180deg, rgba(67,133,208,0.96) 0%, rgba(39,96,177,0.95) 50%, rgba(35,86,162,0.96) 100%)',
+        borderTop: '1px solid rgba(197, 226, 255, 0.56)',
+        boxShadow: '0 -4px 14px rgba(9, 30, 72, 0.34), inset 0 1px 0 rgba(255,255,255,0.24)',
       }}
     >
-      <span className="desktop-status__brand inline-flex h-7 w-7 items-center justify-center rounded-md bg-[rgba(94,234,212,0.14)] text-[0.65rem] font-bold leading-none text-[var(--sidebar-accent)]">
-        S
-      </span>
-      <div className="mt-2 flex flex-1 flex-col items-center gap-2">
+      <div className="relative h-full shrink-0">
         <button
           type="button"
-          className={iconButtonClass}
-          aria-label="Projets"
+          className={`xp-start-button inline-flex h-full items-center gap-1.5 text-[0.82rem] font-bold text-[#f6fff0] transition ${
+            isStartMenuOpen ? 'xp-start-button--pressed' : ''
+          }`}
           onClick={() => {
-            closeAllQuickPanels()
-            onOpenWindow('projects')
+            setIsStartMenuOpen((value) => !value)
+            closeTrayMenus()
           }}
+          aria-label="Menu Démarrer"
         >
-          <img src={folderIcon} alt="" className="size-4 object-contain opacity-95" draggable={false} />
+          <span className="xp-start-button__logo-wrap" aria-hidden>
+            <img src={xpLogo} alt="" className="xp-start-button__logo-image" draggable={false} />
+          </span>
+          <span className="xp-start-button__label">démarrer</span>
         </button>
-        <button
-          type="button"
-          className={iconButtonClass}
-          aria-label="Contact"
-          onClick={() => {
-            closeAllQuickPanels()
-            onOpenWindow('contact')
-          }}
-        >
-          <img src={contactIcon} alt="" className="size-4 object-contain opacity-95" draggable={false} />
-        </button>
-        <button
-          type="button"
-          className={iconButtonClass}
-          aria-label="Terminal"
-          onClick={() => {
-            closeAllQuickPanels()
-            onOpenWindow('terminal')
-          }}
-        >
-          <img src={terminalIcon} alt="" className="size-4 object-contain opacity-95" draggable={false} />
-        </button>
-        <button
-          type="button"
-          className={iconButtonClass}
-          aria-label="Navigateur"
-          onClick={() => {
-            closeAllQuickPanels()
-            window.open(window.location.origin, '_blank', 'noopener,noreferrer')
-          }}
-        >
-          <img src={browserIcon} alt="" className="size-4 object-contain opacity-95" draggable={false} />
-        </button>
-        <button
-          type="button"
-          className={iconButtonClass}
-          aria-label="GitHub"
-          onClick={() => {
-            closeAllQuickPanels()
-            window.open('https://github.com/SteveRothier', '_blank', 'noopener,noreferrer')
-          }}
-        >
-          <img src={githubIcon} alt="" className="size-4 object-contain opacity-95" draggable={false} />
-        </button>
-      </div>
-      <div className="relative mt-auto flex flex-col items-center gap-1">
-        <button
-          type="button"
-          className={iconButtonClass}
-          onClick={() => {
-            setIsProfileMenuOpen((value) => !value)
-            setIsLocationMenuOpen(false)
-            setIsNetworkMenuOpen(false)
-            setIsThemeMenuOpen(false)
-          }}
-          aria-label="Profil"
-        >
-          <CircleUserRound className="size-[0.9rem]" aria-hidden />
-        </button>
-        <button
-          type="button"
-          className={iconButtonClass}
-          onClick={() => {
-            setIsLocationMenuOpen((value) => !value)
-            setIsProfileMenuOpen(false)
-            setIsNetworkMenuOpen(false)
-            setIsThemeMenuOpen(false)
-          }}
-          aria-label="Localisation"
-        >
-          <MapPin className="size-[0.9rem]" aria-hidden />
-        </button>
-        <button
-          type="button"
-          className={iconButtonClass}
-          onClick={() => {
-            setIsNetworkMenuOpen((value) => !value)
-            setIsProfileMenuOpen(false)
-            setIsLocationMenuOpen(false)
-            setIsThemeMenuOpen(false)
-          }}
-          aria-label="Réseau"
-        >
-          <Wifi className="size-[0.9rem]" aria-hidden />
-        </button>
-        <button
-          type="button"
-          className={iconButtonClass}
-          onClick={() => {
-            setIsThemeMenuOpen((value) => !value)
-            setIsProfileMenuOpen(false)
-            setIsLocationMenuOpen(false)
-            setIsNetworkMenuOpen(false)
-          }}
-          aria-label="Thème"
-        >
-          <Contrast className="size-[0.9rem]" aria-hidden />
-        </button>
-        {isProfileMenuOpen ? (
-          <div className="absolute left-[calc(100%+0.45rem)] bottom-0 z-50 min-w-[200px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-sm">
-            <div className="mb-1 rounded-md bg-[rgba(255,255,255,0.05)] px-2.5 py-2">
-              <p className="m-0 text-sm font-semibold text-text-main">SteveOS</p>
-              <p className="m-0 mt-0.5 text-xs text-text-soft">Compte local</p>
-            </div>
-            {PROFILE_MENU_ITEMS.map(({ id, label, Icon }) => (
+        {isStartMenuOpen ? (
+          <div className="absolute bottom-[calc(100%+0.45rem)] left-0 z-50 w-[230px] rounded-[10px] border border-[rgba(181,214,255,0.58)] bg-[linear-gradient(180deg,rgba(48,97,173,0.98),rgba(27,66,135,0.98))] p-2 shadow-[0_10px_30px_rgba(0,0,0,0.45)]">
+            {TASKBAR_APPS.filter((app) => app.windowId).map((app) => (
               <button
-                key={id}
+                key={`start-${app.id}`}
                 type="button"
-                className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-text-main hover:bg-[rgba(255,255,255,0.06)]"
-                onClick={() => handleProfileAction(id)}
+                className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-[#f3f8ff] hover:bg-[rgba(255,255,255,0.14)]"
+                onClick={() => {
+                  setIsStartMenuOpen(false)
+                  handleTaskbarClick(app)
+                }}
               >
-                <Icon className="size-4 shrink-0 opacity-90" aria-hidden />
-                <span>{label}</span>
+                <img src={app.icon} alt="" className="size-4 object-contain" draggable={false} />
+                <span>{app.label}</span>
               </button>
             ))}
-            <div className="my-1 h-px bg-line-soft" aria-hidden />
-            <button
-              type="button"
-              className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-[#f47777] hover:bg-[rgba(244,119,119,0.12)]"
-              onClick={() => setIsProfileMenuOpen(false)}
-            >
-              <LogOut className="size-4 shrink-0" aria-hidden />
-              <span>Déconnexion</span>
-            </button>
           </div>
         ) : null}
+      </div>
+
+      <div className="flex h-full flex-1 items-center gap-0.5 px-1">
+        {TASKBAR_APPS.map((app) => {
+          const isOpen = Boolean(app.windowId && (windows[app.windowId].isOpen || windows[app.windowId].isMinimized))
+          const isActive = Boolean(app.windowId && activeWindowId === app.windowId)
+          return (
+            <button
+              key={app.id}
+              type="button"
+              className={`xp-taskbar-app relative inline-flex h-full min-w-[44px] items-center justify-center px-1.5 transition ${
+                isActive ? 'xp-taskbar-app--active' : isOpen ? 'xp-taskbar-app--open' : ''
+              }`}
+              onClick={() => handleTaskbarClick(app)}
+              aria-label={app.label}
+              title={app.label}
+            >
+              <img src={app.icon} alt="" className="xp-taskbar-app__icon object-contain" draggable={false} />
+            </button>
+          )
+        })}
+      </div>
+
+      <div
+        className="relative flex h-full items-center rounded-l-[3px] py-1 pl-1.5"
+        style={{
+          background: 'linear-gradient(180deg, #42a5ff 0%, #1c85e8 42%, #0f6ec9 100%)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.28)',
+        }}
+      >
+        <div className="flex items-center gap-px">
+          <button
+            type="button"
+            className={iconButtonClass}
+            onClick={() => {
+              setIsLocationMenuOpen((value) => !value)
+              setIsNetworkMenuOpen(false)
+              setIsStartMenuOpen(false)
+            }}
+            aria-label="Localisation"
+          >
+            <MapPin className="size-[1rem]" aria-hidden />
+          </button>
+          <button
+            type="button"
+            className={iconButtonClass}
+            onClick={() => {
+              setIsNetworkMenuOpen((value) => !value)
+              setIsLocationMenuOpen(false)
+              setIsStartMenuOpen(false)
+            }}
+            aria-label="Réseau"
+          >
+            <Wifi className="size-[1rem]" aria-hidden />
+          </button>
+        </div>
 
         {isLocationMenuOpen ? (
-          <div className="absolute left-[calc(100%+0.45rem)] bottom-0 z-50 min-w-[154px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-sm">
+          <div className="absolute right-0 bottom-[calc(100%+0.45rem)] z-50 min-w-[154px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-sm">
             <p className="m-0 text-xs font-semibold text-text-main">Localisation</p>
             <p className="mt-1 text-sm font-medium text-text-main">Reims</p>
             <p className="mt-0.5 text-xs text-text-soft">France</p>
@@ -302,38 +248,22 @@ export function Navbar({ onOpenWindow }: NavbarProps) {
         ) : null}
 
         {isNetworkMenuOpen ? (
-          <div className="absolute left-[calc(100%+0.45rem)] bottom-0 z-50 min-w-[154px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-sm">
+          <div className="absolute right-0 bottom-[calc(100%+0.45rem)] z-50 min-w-[154px] rounded-md border border-line-soft bg-bg-window p-2 shadow-lg backdrop-blur-sm">
             <p className="m-0 text-xs font-semibold text-text-main">Réseau</p>
             <p className="mt-1 text-xs text-text-soft">Accès Internet</p>
           </div>
         ) : null}
 
-        {isThemeMenuOpen ? (
-          <div className="absolute left-[calc(100%+0.45rem)] bottom-0 z-50 min-w-[152px] rounded-md border border-line-soft bg-bg-window p-1.5 shadow-lg backdrop-blur-sm">
-            {THEME_MENU_ITEMS.map(({ mode, label, Icon }) => (
-              <button
-                key={mode}
-                type="button"
-                className={`flex w-full items-center justify-between gap-2 rounded px-2 py-1.5 text-left text-sm ${themeMode === mode ? 'bg-[rgba(56,189,248,0.2)] text-text-main' : 'text-text-soft hover:bg-[rgba(255,255,255,0.06)]'}`}
-                onClick={() => {
-                  setThemeMode(mode)
-                  setIsThemeMenuOpen(false)
-                }}
-              >
-                <span className="inline-flex items-center gap-2">
-                  <Icon className="size-4 shrink-0 opacity-90" aria-hidden />
-                  <span>{label}</span>
-                </span>
-                {themeMode === mode ? <span aria-hidden>✓</span> : null}
-              </button>
-            ))}
-          </div>
-        ) : null}
+        <span
+          className="pointer-events-none inline-flex items-center text-xs tabular-nums font-medium text-white"
+          style={{
+            paddingLeft: 'max(1rem, env(safe-area-inset-right, 0px))',
+            paddingRight: 'max(1.25rem, env(safe-area-inset-right, 0px))',
+          }}
+        >
+          {formattedTime}
+        </span>
       </div>
-      <span className="desktop-status__datetime pointer-events-none mt-1 inline-flex flex-col items-center font-mono text-[1.08rem] font-extrabold tabular-nums leading-[0.88] tracking-[-0.04em] text-[#f2f6ff] [text-shadow:0_1px_2px_rgba(0,0,0,0.45)]">
-        <span>{hourText}</span>
-        <span>{minuteText}</span>
-      </span>
     </header>
   )
 }

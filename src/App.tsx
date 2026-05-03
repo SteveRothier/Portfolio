@@ -1,4 +1,4 @@
-import { DesktopExperience } from './windows'
+import { DesktopExperience } from './desktop/DesktopExperience'
 
 export default function App() {
   return (

@@ -1,5 +1,4 @@
 export type WindowId = 'projects' | 'contact' | 'terminal' | 'about' | 'cv'
-export type SnapMode = 'none' | 'top' | 'left' | 'right'
 
 export type DesktopWindowState = {
   id: WindowId
@@ -7,7 +6,6 @@ export type DesktopWindowState = {
   isOpen: boolean
   isMinimized: boolean
   isMaximized: boolean
-  snapMode: SnapMode
   x: number
   y: number
   width: number

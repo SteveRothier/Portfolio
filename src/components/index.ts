@@ -1,5 +1,0 @@
-export { DesktopSidebar } from './DesktopSidebar'
-export { Home } from './Home'
-export { CLOSE_NAVBAR_MENUS_EVENT, Navbar } from './Navbar'
-export { Welcome } from './Welcome'
-export { WindowControls } from './WindowControls'

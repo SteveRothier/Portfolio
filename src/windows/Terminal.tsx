@@ -7,10 +7,7 @@ const coreSkills = [
   { label: 'Tooling', value: 'Git, GitHub, Vite' },
 ]
 
-const suggestedSkills = [
-  'Tests (Vitest)',
-  'CI/CD (GitHub Actions)',
-]
+const suggestedSkills = ['Tests (Vitest)', 'CI/CD (GitHub Actions)']
 
 export function Terminal() {
   return (

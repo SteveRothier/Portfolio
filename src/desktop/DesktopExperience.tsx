@@ -1,28 +1,90 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import gsap from 'gsap'
-import {
-  CLOSE_NAVBAR_MENUS_EVENT,
-  Home,
-  Navbar,
-  Welcome,
-} from '../components'
-import { About } from './About'
-import { Contact } from './Contact'
-import { Cv } from './Cv'
-import { Projects } from './Projects'
-import { Terminal } from './Terminal'
-import { DesktopWindow } from './DesktopWindow'
-import { useWindowManager } from './useWindowManager'
+import { Home } from '../components/Home'
+import { CLOSE_NAVBAR_MENUS_EVENT, Navbar } from '../components/Navbar'
+import { Welcome } from '../components/Welcome'
+import { useWindowManager } from '../store/windowStore'
+import type { DesktopWindowState, WindowId } from '../windows/types'
 import resumePdf from '../assets/cv/resume.pdf'
+import { WindowResize } from './WindowResize'
+import { WindowContent } from './WindowContent'
 
-type SnapTarget = 'top' | 'left' | 'right' | null
 type SelectionRect = { x: number; y: number; width: number; height: number } | null
+
+type DesktopWindowRowProps = {
+  windowState: DesktopWindowState
+  stackIndex: number
+  isActive: boolean
+  resumePdf: string
+  bringToFront: (id: WindowId) => void
+  closeWindow: (id: WindowId) => void
+  minimizeWindow: (id: WindowId) => void
+  toggleMaximizeWindow: (id: WindowId) => void
+  moveWindow: (id: WindowId, x: number, y: number) => void
+  resizeWindow: (id: WindowId, x: number, y: number, width: number, height: number) => void
+  restoreWindowFromSnap: (id: WindowId, x: number, y: number, width: number, height: number) => void
+}
+
+function DesktopWindowRowInner({
+  windowState,
+  stackIndex,
+  isActive,
+  resumePdf: resumePdfUrl,
+  bringToFront,
+  closeWindow,
+  minimizeWindow,
+  toggleMaximizeWindow,
+  moveWindow,
+  resizeWindow,
+  restoreWindowFromSnap,
+}: DesktopWindowRowProps) {
+  const id = windowState.id
+
+  const onFocus = useCallback(() => bringToFront(id), [bringToFront, id])
+  const onClose = useCallback(() => closeWindow(id), [closeWindow, id])
+  const onMinimize = useCallback(() => minimizeWindow(id), [minimizeWindow, id])
+  const onToggleMaximize = useCallback(() => toggleMaximizeWindow(id), [toggleMaximizeWindow, id])
+  const onMove = useCallback((x: number, y: number) => moveWindow(id, x, y), [moveWindow, id])
+  const onResize = useCallback(
+    (x: number, y: number, width: number, height: number) => resizeWindow(id, x, y, width, height),
+    [resizeWindow, id],
+  )
+  const onRestoreFromSnap = useCallback(
+    (x: number, y: number, width: number, height: number) => restoreWindowFromSnap(id, x, y, width, height),
+    [restoreWindowFromSnap, id],
+  )
+  const onDownload = useCallback(() => {
+    window.open(resumePdfUrl, '_blank', 'noopener,noreferrer')
+  }, [resumePdfUrl])
+
+  return (
+    <WindowResize
+      windowState={windowState}
+      isActive={isActive}
+      stackIndex={stackIndex}
+      onFocus={onFocus}
+      onClose={onClose}
+      onMinimize={onMinimize}
+      contentScrollable={id !== 'cv'}
+      onDownload={id === 'cv' ? onDownload : undefined}
+      onToggleMaximize={onToggleMaximize}
+      onMove={onMove}
+      onResize={onResize}
+      onRestoreFromSnap={onRestoreFromSnap}
+    >
+      <WindowContent id={id} />
+    </WindowResize>
+  )
+}
+
+const DesktopWindowRow = memo(DesktopWindowRowInner)
 
 export function DesktopExperience() {
   const desktopRef = useRef<HTMLDivElement | null>(null)
   const selectionStartRef = useRef<{ x: number; y: number; pointerId: number } | null>(null)
   const {
+    windows,
     orderedWindows,
     openWindow,
     closeWindow,
@@ -32,17 +94,14 @@ export function DesktopExperience() {
     moveWindow,
     resizeWindow,
     restoreWindowFromSnap,
-    snapWindowToEdge,
   } = useWindowManager()
-  const [snapPreview, setSnapPreview] = useState<SnapTarget>(null)
   const [selectionRect, setSelectionRect] = useState<SelectionRect>(null)
-  const resolveSnapTarget = (cursorX: number, cursorY: number): SnapTarget => {
-    const edgeThreshold = 28
-    if (cursorY <= edgeThreshold) return 'top'
-    if (cursorX <= edgeThreshold) return 'left'
-    if (cursorX >= window.innerWidth - edgeThreshold) return 'right'
-    return null
-  }
+
+  const activeWindowId = useMemo(() => {
+    const open = orderedWindows.filter((windowState) => windowState.isOpen)
+    if (open.length === 0) return null
+    return open.sort((a, b) => b.zIndex - a.zIndex)[0]?.id ?? null
+  }, [orderedWindows])
 
   useLayoutEffect(() => {
     if (!desktopRef.current) return
@@ -55,7 +114,7 @@ export function DesktopExperience() {
         ease: 'power2.out',
       })
       gsap.from('.desktop-status', {
-        x: -14,
+        y: 14,
         opacity: 0,
         duration: 0.35,
         ease: 'power2.out',
@@ -94,7 +153,7 @@ export function DesktopExperience() {
     const target = event.target as HTMLElement
     if (
       target.closest(
-        '.desktop-window, .desktop-icon, .desktop-status, .desktop-window__titlebar',
+        '.desktop-window, .desktop-icon, .desktop-xp-shortcut, .desktop-status, .desktop-window__titlebar',
       )
     ) {
       return
@@ -122,11 +181,10 @@ export function DesktopExperience() {
       onPointerDownCapture={handleScenePointerDownCapture}
     >
       <Welcome />
-      <Navbar onOpenWindow={openWindow} />
+      <Navbar onOpenWindow={openWindow} onRequestMinimizeWindow={minimizeWindow} windows={windows} />
       <Home onOpenWindow={openWindow} />
 
       <div className="desktop-windows relative min-h-dvh">
-        {snapPreview ? <div className={`snap-preview snap-preview--${snapPreview}`} aria-hidden /> : null}
         {selectionRect ? (
           <div
             className="desktop-selection-box pointer-events-none fixed z-20 rounded-[2px] border"
@@ -142,47 +200,20 @@ export function DesktopExperience() {
           />
         ) : null}
         {orderedWindows.map((windowState, index) => (
-          <DesktopWindow
+          <DesktopWindowRow
             key={windowState.id}
             windowState={windowState}
-            stackIndex={windowState.snapMode !== 'none' ? 60 + index : 31 + index}
-            onFocus={() => bringToFront(windowState.id)}
-            onClose={() => closeWindow(windowState.id)}
-            onMinimize={() => minimizeWindow(windowState.id)}
-            contentScrollable={windowState.id !== 'cv'}
-            onDownload={
-              windowState.id === 'cv'
-                ? () => {
-                    window.open(resumePdf, '_blank', 'noopener,noreferrer')
-                  }
-                : undefined
-            }
-            onToggleMaximize={() => toggleMaximizeWindow(windowState.id)}
-            onMove={(x, y) => moveWindow(windowState.id, x, y)}
-            onDragMove={(cursorX, cursorY) => setSnapPreview(resolveSnapTarget(cursorX, cursorY))}
-            onResize={(x: number, y: number, width: number, height: number) =>
-              resizeWindow(windowState.id, x, y, width, height)
-            }
-            onRestoreFromSnap={(x, y, width, height) =>
-              restoreWindowFromSnap(windowState.id, x, y, width, height)
-            }
-            onDragEnd={(cursorX, cursorY) => {
-              setSnapPreview(null)
-              snapWindowToEdge(windowState.id, cursorX, cursorY)
-            }}
-          >
-            {windowState.id === 'projects' ? (
-              <Projects />
-            ) : windowState.id === 'terminal' ? (
-              <Terminal />
-            ) : windowState.id === 'about' ? (
-              <About />
-            ) : windowState.id === 'cv' ? (
-              <Cv />
-            ) : (
-              <Contact />
-            )}
-          </DesktopWindow>
+            stackIndex={windowState.isMaximized ? 60 + index : 31 + index}
+            isActive={activeWindowId === windowState.id}
+            resumePdf={resumePdf}
+            bringToFront={bringToFront}
+            closeWindow={closeWindow}
+            minimizeWindow={minimizeWindow}
+            toggleMaximizeWindow={toggleMaximizeWindow}
+            moveWindow={moveWindow}
+            resizeWindow={resizeWindow}
+            restoreWindowFromSnap={restoreWindowFromSnap}
+          />
         ))}
       </div>
     </section>

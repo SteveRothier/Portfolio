@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { DesktopWindowState, WindowConfig, WindowId } from '../windows/types'
@@ -7,7 +8,6 @@ const MIN_HEIGHT = 220
 const MIN_VISIBLE_WIDTH = 120
 const MIN_TOP = 0
 const MIN_BOTTOM_VISIBLE = 120
-const EDGE_THRESHOLD = 28
 const MOBILE_LAYOUT_MAX_WIDTH = 920
 const CV_DEFAULT_WIDTH = 520
 const CV_DEFAULT_HEIGHT = 700
@@ -49,7 +49,6 @@ type WindowStoreState = {
   moveWindow: (id: WindowId, x: number, y: number) => void
   resizeWindow: (id: WindowId, x: number, y: number, width: number, height: number) => void
   restoreWindowFromSnap: (id: WindowId, x: number, y: number, width: number, height: number) => void
-  snapWindowToEdge: (id: WindowId, cursorX: number, cursorY: number) => void
   normalizeTitles: () => void
   clampToViewport: () => void
   resetStore: () => void
@@ -64,7 +63,6 @@ function toWindowState(config: WindowConfig, zIndex: number): DesktopWindowState
     isOpen: false,
     isMinimized: false,
     isMaximized: false,
-    snapMode: 'none',
   }
 }
 
@@ -107,10 +105,6 @@ function sanitizeWindowState(windowId: WindowId, candidate: unknown, fallbackZ: 
     isOpen: Boolean(source.isOpen),
     isMinimized: Boolean(source.isMinimized),
     isMaximized: Boolean(source.isMaximized),
-    snapMode:
-      source.snapMode === 'top' || source.snapMode === 'left' || source.snapMode === 'right'
-        ? source.snapMode
-        : 'none',
     x: toFiniteNumber(source.x, 0),
     y: toFiniteNumber(source.y, 0),
     width: Math.max(toFiniteNumber(source.width, defaults.width), MIN_WIDTH),
@@ -150,10 +144,7 @@ function isTotallyOffscreen(x: number, y: number, width: number, height: number,
 
 function clampWindowForViewport(windowState: DesktopWindowState): DesktopWindowState {
   const viewport = getViewport()
-  const useMobileLayout =
-    viewport.width <= MOBILE_LAYOUT_MAX_WIDTH &&
-    !windowState.isMaximized &&
-    windowState.snapMode === 'none'
+  const useMobileLayout = viewport.width <= MOBILE_LAYOUT_MAX_WIDTH && !windowState.isMaximized
 
   const layoutWidth = useMobileLayout
     ? Math.max(Math.min(Math.floor(viewport.width * 0.96), 680), MIN_WIDTH)
@@ -258,7 +249,6 @@ export const useWindowStore = create<WindowStoreState>()(
               isOpen: false,
               isMinimized: false,
               isMaximized: false,
-              snapMode: 'none',
             },
           },
         }))
@@ -286,7 +276,6 @@ export const useWindowStore = create<WindowStoreState>()(
                   ...current,
                   ...current.restoreBounds,
                   isMaximized: false,
-                  snapMode: 'none',
                   restoreBounds: undefined,
                 },
               },
@@ -304,7 +293,6 @@ export const useWindowStore = create<WindowStoreState>()(
                 width: Math.max(viewport.width, MIN_WIDTH),
                 height: Math.max(viewport.height, MIN_HEIGHT),
                 isMaximized: true,
-                snapMode: 'top',
                 restoreBounds: {
                   x: current.x,
                   y: current.y,
@@ -324,7 +312,6 @@ export const useWindowStore = create<WindowStoreState>()(
             [id]: {
               ...state.windows[id],
               isMaximized: false,
-              snapMode: 'none',
               restoreBounds: undefined,
               x,
               y,
@@ -339,7 +326,6 @@ export const useWindowStore = create<WindowStoreState>()(
             [id]: {
               ...state.windows[id],
               isMaximized: false,
-              snapMode: 'none',
               restoreBounds: undefined,
               x,
               y,
@@ -360,92 +346,10 @@ export const useWindowStore = create<WindowStoreState>()(
               width,
               height,
               isMaximized: false,
-              snapMode: 'none',
               restoreBounds: undefined,
             },
           },
         }))
-        get().bringToFront(id)
-      },
-      snapWindowToEdge: (id, cursorX, cursorY) => {
-        const nearTop = cursorY <= EDGE_THRESHOLD
-        const nearLeft = cursorX <= EDGE_THRESHOLD
-        const viewport = getViewport()
-        const nearRight = cursorX >= viewport.width - EDGE_THRESHOLD
-
-        if (!nearTop && !nearLeft && !nearRight) return
-
-        set((state) => {
-          const current = state.windows[id]
-          if (!current.isOpen) return state
-
-          if (nearTop) {
-            const previousBounds = current.restoreBounds ?? {
-              x: current.x,
-              y: current.y,
-              width: current.width,
-              height: current.height,
-            }
-            return {
-              windows: {
-                ...state.windows,
-                [id]: {
-                  ...current,
-                  x: 0,
-                  y: 0,
-                  width: Math.max(viewport.width, MIN_WIDTH),
-                  height: Math.max(viewport.height, MIN_HEIGHT),
-                  isMaximized: true,
-                  snapMode: 'top',
-                  restoreBounds: previousBounds,
-                },
-              },
-            }
-          }
-
-          const halfWidth = Math.max(Math.floor(viewport.width / 2), MIN_WIDTH)
-          const fullHeight = Math.max(viewport.height, MIN_HEIGHT)
-          const previousBounds = current.restoreBounds ?? {
-            x: current.x,
-            y: current.y,
-            width: current.width,
-            height: current.height,
-          }
-
-          if (nearLeft) {
-            return {
-              windows: {
-                ...state.windows,
-                [id]: {
-                  ...current,
-                  x: 0,
-                  y: 0,
-                  width: halfWidth,
-                  height: fullHeight,
-                  isMaximized: false,
-                  snapMode: 'left',
-                  restoreBounds: previousBounds,
-                },
-              },
-            }
-          }
-
-          return {
-            windows: {
-              ...state.windows,
-              [id]: {
-                ...current,
-                x: Math.max(viewport.width - halfWidth, 0),
-                y: 0,
-                width: halfWidth,
-                height: fullHeight,
-                isMaximized: false,
-                snapMode: 'right',
-                restoreBounds: previousBounds,
-              },
-            },
-          }
-        })
         get().bringToFront(id)
       },
       normalizeTitles: () => {
@@ -501,3 +405,46 @@ export const useWindowStore = create<WindowStoreState>()(
     },
   ),
 )
+
+export function useWindowManager() {
+  const windows = useWindowStore((state) => state.windows)
+  const openWindow = useWindowStore((state) => state.openWindow)
+  const closeWindow = useWindowStore((state) => state.closeWindow)
+  const minimizeWindow = useWindowStore((state) => state.minimizeWindow)
+  const toggleMaximizeWindow = useWindowStore((state) => state.toggleMaximizeWindow)
+  const bringToFront = useWindowStore((state) => state.bringToFront)
+  const moveWindow = useWindowStore((state) => state.moveWindow)
+  const resizeWindow = useWindowStore((state) => state.resizeWindow)
+  const restoreWindowFromSnap = useWindowStore((state) => state.restoreWindowFromSnap)
+  const clampToViewport = useWindowStore((state) => state.clampToViewport)
+  const normalizeTitles = useWindowStore((state) => state.normalizeTitles)
+
+  useEffect(() => {
+    normalizeTitles()
+    clampToViewport()
+  }, [clampToViewport, normalizeTitles])
+
+  useEffect(() => {
+    const onResize = () => clampToViewport()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [clampToViewport])
+
+  const orderedWindows = useMemo(
+    () => Object.values(windows).sort((a, b) => a.zIndex - b.zIndex),
+    [windows],
+  )
+
+  return {
+    windows,
+    orderedWindows,
+    openWindow,
+    closeWindow,
+    minimizeWindow,
+    toggleMaximizeWindow,
+    bringToFront,
+    moveWindow,
+    resizeWindow,
+    restoreWindowFromSnap,
+  }
+}
